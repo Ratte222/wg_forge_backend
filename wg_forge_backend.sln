@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31410.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wg_forge_backend", "wg_forge_backend\wg_forge_backend.csproj", "{5CA139C9-BE66-46C7-8403-1D72AEB432E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{7CCF5A59-DEEF-4043-9703-EED3B37ABDEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "BLL\BLL.csproj", "{2E8E69B3-3A4A-44A5-8D0D-1A608DCD1362}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5CA139C9-BE66-46C7-8403-1D72AEB432E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CA139C9-BE66-46C7-8403-1D72AEB432E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CA139C9-BE66-46C7-8403-1D72AEB432E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CA139C9-BE66-46C7-8403-1D72AEB432E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CCF5A59-DEEF-4043-9703-EED3B37ABDEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CCF5A59-DEEF-4043-9703-EED3B37ABDEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CCF5A59-DEEF-4043-9703-EED3B37ABDEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CCF5A59-DEEF-4043-9703-EED3B37ABDEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E8E69B3-3A4A-44A5-8D0D-1A608DCD1362}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E8E69B3-3A4A-44A5-8D0D-1A608DCD1362}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E8E69B3-3A4A-44A5-8D0D-1A608DCD1362}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E8E69B3-3A4A-44A5-8D0D-1A608DCD1362}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8E761A16-3BB7-4380-8923-10C20F1B506F}
+	EndGlobalSection
+EndGlobal
