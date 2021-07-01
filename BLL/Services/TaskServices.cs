@@ -20,14 +20,28 @@ namespace BLL.Services
         }
 
         public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)
-        {            
-            if ((attribute == null) && (attribute != "name") && (attribute != "color") &&
+        {
+            if (attribute == null)
+                attribute = "name";
+            if ((attribute != "name") && (attribute != "color") &&
                 (attribute != "tail_length") && (attribute != "whiskers_length"))
-                throw new ValidationException(@"The ""attribute"" parameter is not correct. 
+              throw new ValidationException(@"The ""attribute"" parameter is not correct. 
                     Use ""name"" or ""color"" or ""tail_length"" or ""whiskers_length""", "");
             order = order?.ToLower();
             if (!String.IsNullOrEmpty(order) && (!String.Equals(order, "asc") && !String.Equals(order, "desc")))
                 throw new ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""", "");
+            if(offset!=null)
+            {
+                if(offset >= Database.Cats.Count())
+                    throw new ValidationException(@"The ""offset"" >= cats count", "");
+                else if (offset < 0)
+                    throw new ValidationException(@"The ""offset"" cannot be less 0", "");
+            }
+            if (limit != null)
+            {                
+                if (limit < 1)
+                    throw new ValidationException(@"The ""limit"" cannot be less 1", "");
+            }
             List<Cat> cats = null;
             SqlParameter sqlLimit = new SqlParameter("@limit", limit),
                     sqlOffset = new SqlParameter("@offset", offset);
@@ -52,6 +66,7 @@ namespace BLL.Services
                 cats = Database.Cats.FromSqlRaw($"SELECT * FROM cats ORDER BY {attribute} {order}",
                      order).ToList();
             }
+            List<CatDTO> catsDTO = new List<CatDTO>();
             if(cats == null)
             {
                 throw new SelectException("No objects found ", "");                
