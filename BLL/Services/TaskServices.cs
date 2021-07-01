@@ -20,7 +20,7 @@ namespace BLL.Services
         }
 
         public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)
-        {
+        {            
             if ((attribute == null) && (attribute != "name") && (attribute != "color") &&
                 (attribute != "tail_length") && (attribute != "whiskers_length"))
                 throw new ValidationException(@"The ""attribute"" parameter is not correct. 
@@ -52,19 +52,13 @@ namespace BLL.Services
                 cats = Database.Cats.FromSqlRaw($"SELECT * FROM cats ORDER BY {attribute} {order}",
                      order).ToList();
             }
-            List<CatDTO> catsDTO = new List<CatDTO>();
             if(cats == null)
             {
                 throw new SelectException("No objects found ", "");                
             }
             var config = new MapperConfiguration(cfg => cfg.CreateMap<Cat, CatDTO>());
             var mapper = new Mapper(config);
-            foreach (Cat cat in cats)
-            {
-                catsDTO.Add(mapper.Map<Cat, CatDTO>(cat));
-            }
-            return catsDTO;
-            //return mapper.Map<Cat, CatDTO>(Database.Cats.First());
+            return  mapper.Map<List<Cat>, List<CatDTO>>(cats);            
         }
 
         public string Ping()
