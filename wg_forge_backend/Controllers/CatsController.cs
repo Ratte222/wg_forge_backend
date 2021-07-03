@@ -51,5 +51,10 @@ namespace wg_forge_backend.Controllers
         {
             return Json(taskService.Exercise1());
         }
+        [Route("ex_2/")]//проборосил сюда для наглядности
+        public IActionResult Exercise2()
+        {
+            return Json(taskService.Exercise2());
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace DAL.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<CatColorInfo>().HasKey(u => u.Color)/*.HasAlternateKey(u => u.Color)*/;
-            modelBuilder.Entity<CatStat>().HasNoKey();
+            //modelBuilder.Entity<CatStat>().HasNoKey();
         }
 
     }

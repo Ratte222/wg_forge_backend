@@ -78,11 +78,20 @@ namespace BLL.Services
 
         public List<CatColorInfoDTO> Exercise1()
         {
-            new Exercise1().ProcessingExercise1(Database);
+            new Exercises().ProcessingExercise1(Database);
             var config = new MapperConfiguration(cfg => cfg.CreateMap<CatColorInfo, CatColorInfoDTO>());
             var mapper = new Mapper(config);
             return mapper.Map<List<CatColorInfo>, List<CatColorInfoDTO>>(
                 Database.CatColorInfos.Select(i => i).ToList());//тут делаю выборку для проверки привильности записанных данных
+        }
+
+        public CatStatDTO Exercise2()
+        {
+            new Exercises().ProcessingExercise2(Database);
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<CatStat, CatStatDTO>());
+            var mapper = new Mapper(config);
+            return mapper.Map<CatStat, CatStatDTO>(
+                Database.CatStats.Select(i => i).Single());//тут делаю выборку для проверки привильности записанных данных
         }
 
         public string Ping()

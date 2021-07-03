@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
@@ -8,6 +9,8 @@ namespace DAL.Entities
     [Table("cats_stat")]
     public class CatStat
     {
+        [Key]
+        public int Id { get; set; }
         [Column("tail_length_mean")]
         public decimal TailLengthMean { get; set; }
         [Column("tail_length_median")]
