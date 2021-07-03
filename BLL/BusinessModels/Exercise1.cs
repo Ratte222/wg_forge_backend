@@ -9,16 +9,23 @@ namespace BLL.BusinessModels
     {
         public void ProcessingExercise1(CatContext db)
         {
-            IEnumerable<CatColorInfo> query = db.Cats.GroupBy(
+            List<CatColorInfo> catInfoNow = db.CatColorInfos.Select(i => i).ToList();
+            if(catInfoNow.Count == 0)
+            {
+                IEnumerable<CatColorInfo> query = db.Cats.GroupBy(
                 cat => cat.Color,
                 cat => cat.Color,
-                (colorKey, color) => new CatColorInfo
+                (keyColor, color) => new CatColorInfo
                 {
-                    Color = colorKey,
+                    Color = keyColor,
                     Count = color.Count()
                 }).AsEnumerable();
-            db.CatColorInfos.AddRange(query);
-            db.SaveChanges();
+
+                db.CatColorInfos.AddRange(query);
+
+                db.SaveChanges();
+            }            
         }
+
     }
 }
