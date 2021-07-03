@@ -45,5 +45,11 @@ namespace wg_forge_backend.Controllers
         {
             return Content(taskService.Ping());
         }
+
+        [Route("ex_1/")]//проборосил сюда для наглядности
+        public IActionResult Exercise1()
+        {
+            return Json(taskService.Exercise1());
+        }
     }
 }

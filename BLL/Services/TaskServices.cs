@@ -4,6 +4,7 @@ using System.Linq;
 using BLL.Interfaces;
 using BLL.Infrastructure;
 using BLL.DTO;
+using BLL.BusinessModels;
 using DAL.EF;
 using DAL.Entities;
 using AutoMapper;
@@ -66,7 +67,6 @@ namespace BLL.Services
                 cats = Database.Cats.FromSqlRaw($"SELECT * FROM cats ORDER BY {attribute} {order}",
                      order).ToList();
             }
-            List<CatDTO> catsDTO = new List<CatDTO>();
             if(cats == null)
             {
                 throw new SelectException("No objects found ", "");                
@@ -74,6 +74,15 @@ namespace BLL.Services
             var config = new MapperConfiguration(cfg => cfg.CreateMap<Cat, CatDTO>());
             var mapper = new Mapper(config);
             return  mapper.Map<List<Cat>, List<CatDTO>>(cats);            
+        }
+
+        public List<CatColorInfoDTO> Exercise1()
+        {
+            new Exercise1().ProcessingExercise1(Database);
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<CatColorInfo, CatColorInfoDTO>());
+            var mapper = new Mapper(config);
+            return mapper.Map<List<CatColorInfo>, List<CatColorInfoDTO>>(
+                Database.CatColorInfos.Select(i => i).ToList());//тут делаю выборку для проверки привильности записанных данных
         }
 
         public string Ping()
