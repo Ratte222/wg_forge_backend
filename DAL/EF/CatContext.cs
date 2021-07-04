@@ -15,7 +15,7 @@ namespace DAL.EF
 
         public CatContext()
         {
-            Database.EnsureDeleted();
+            //Database.EnsureDeleted();
             Database.EnsureCreated();
             StoreDbInitializer.Initialize(this);
         }
