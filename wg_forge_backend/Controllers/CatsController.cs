@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using BLL.Interfaces;
 using BLL.Infrastructure;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using BLL.DTO;
+using System.Text.Json;
+
 namespace wg_forge_backend.Controllers
 {
     
@@ -37,7 +41,7 @@ namespace wg_forge_backend.Controllers
             catch(Exception ex)
             {
                 logger.LogWarning($"{ex.Message}\r\n {ex?.StackTrace}");
-                return this.StatusCode(502);
+                return this.StatusCode(500);
             }
         }
         [Route("ping/")]
@@ -55,6 +59,29 @@ namespace wg_forge_backend.Controllers
         public IActionResult Exercise2()
         {
             return Json(taskService.Exercise2());
+        }
+        [Route("cat/"), HttpPost]
+        public async Task<IActionResult> AddNewCat()
+        { 
+            using var reader = new StreamReader(Request.Body);
+            try
+            {
+                
+                string jsonString = await reader.ReadToEndAsync();
+                NewCatDTO newCatDTO = JsonSerializer.Deserialize<NewCatDTO>(jsonString);
+               taskService.AddCat(jsonString);
+            }
+            catch (ValidationException ex)
+            {
+                //return this.Problem(ex.Message);
+                return this.BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning($"{ex.Message}\r\n {ex?.StackTrace}");
+                return StatusCode(500);
+            }
+            return StatusCode(200);
         }
     }
 }

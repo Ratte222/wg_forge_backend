@@ -15,7 +15,7 @@ namespace DAL.EF
 
         public CatContext()
         {
-            //Database.EnsureDeleted();
+            Database.EnsureDeleted();
             Database.EnsureCreated();
             StoreDbInitializer.Initialize(this);
         }
@@ -30,6 +30,8 @@ namespace DAL.EF
             modelBuilder.Entity<CatColorInfo>().HasKey(u => u.Color)/*.HasAlternateKey(u => u.Color)*/;
             //modelBuilder.Entity<CatStat>().HasNoKey();
         }
+
+        
 
     }
 

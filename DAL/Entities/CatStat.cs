@@ -10,7 +10,8 @@ namespace DAL.Entities
     public class CatStat
     {
         [Key]
-        public int Id { get; set; }
+        public int Id { get; set; }//тут отошёл от модели таблици данной в задании
+                                   //чтоб записать данные в таблицу
         [Column("tail_length_mean")]
         public decimal TailLengthMean { get; set; }
         [Column("tail_length_median")]

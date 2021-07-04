@@ -10,6 +10,8 @@ using DAL.Entities;
 using AutoMapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+
 namespace BLL.Services
 {
     public class TaskServices:ITaskService
@@ -92,6 +94,21 @@ namespace BLL.Services
             var mapper = new Mapper(config);
             return mapper.Map<CatStat, CatStatDTO>(
                 Database.CatStats.Select(i => i).Single());//тут делаю выборку для проверки привильности записанных данных
+        }
+
+        public void AddCat(string jsonString)
+        {
+            NewCatDTO newCatDTO = JsonSerializer.Deserialize<NewCatDTO>(jsonString);
+            
+            if(Database.Cats.Any(i=>i.Name == newCatDTO.Name))
+                throw new ValidationException("A cat with the same name already exists", "");
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<NewCatDTO, Cat>());
+            var mapper = new Mapper(config);
+            Database.Cats.Add(mapper.Map<NewCatDTO, Cat>(newCatDTO));
+
+            
+
+            Database.SaveChanges();
         }
 
         public string Ping()
