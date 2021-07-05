@@ -99,6 +99,7 @@ namespace BLL.Services
 
         public void AddCat(string jsonString)
         {
+            
             NewCatDTO newCatDTO = JsonSerializer.Deserialize<NewCatDTO>(jsonString);
             if(Database.Cats.Any(i=>i.Name == newCatDTO.Name))
                 throw new ValidationException("A cat with the same name already exists", "");

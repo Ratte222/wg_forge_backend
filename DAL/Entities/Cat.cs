@@ -21,15 +21,15 @@ namespace DAL.Entities
             "red & white",
             "red & black & white"
         };
-        [Key, Column("name")]
+        [Key, Required, Column("name")]
         public string Name { get; set; }
         //не понял как сдеать перечесления сторок чтоб использовать атрибут "EnumDataType" 
         //так что сделал свой атрибут
-        [Column("color"), MaxLength(40), CatColors(ErrorMessage = "There is no such color of a cat")]
+        [Column("color"), Required, MaxLength(40), CatColors(ErrorMessage = "There is no such color of a cat")]
         public string Color { get; set; }
-        [Column("tail_length"), Range(0, 43, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Column("tail_length"), Required, Range(0, 43, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int TailLength { get; set; }
-        [Column("whiskers_length"), Range(0, 20, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
+        [Column("whiskers_length"), Required, Range(0, 20, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int WhiskersLength { get; set; }
     }
 }

@@ -1,24 +1,30 @@
 using NUnit.Framework;
 using BLL.Interfaces;
 using BLL.Services;
-using BLL.DTO;
+using DAL.EF;
 using BLL.Infrastructure;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestsBLL
 {
     public class Tests
     {
+        private ITaskService taskService;
         [SetUp]
         public void Setup()
         {
+            DbContextOptionsBuilder<CatContext> options = new DbContextOptionsBuilder<CatContext>();
+            options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;MultipleActiveResultSets=true");
+            CatContext catContext = new CatContext(options.Options);
+            taskService = new TaskServices(catContext);
         }
 
         [Test]
         public void TestGetCats()
         {
             // Arrange
-            ITaskService taskService = new TaskServices();
+            //Setup();
 
             // Act
             
@@ -36,8 +42,8 @@ namespace TestsBLL
         public void TestValidationException()
         {
             // Arrange
-            ITaskService taskService = new TaskServices();
-
+            //ITaskService taskService = new TaskServices();
+            //Setup();
             // Act
             
 
