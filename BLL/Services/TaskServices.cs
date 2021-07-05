@@ -17,9 +17,10 @@ namespace BLL.Services
     public class TaskServices:ITaskService
     {
         CatContext Database { get; set; }
-        public TaskServices()
+        public TaskServices(CatContext catContext)
         {
-            Database = new CatContext();
+            //Database = new CatContext();
+            Database = catContext;
         }
 
         public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)

@@ -13,7 +13,7 @@ namespace DAL.EF
         public DbSet<CatColorInfo> CatColorInfos { get; set; }
         public DbSet<CatStat> CatStats { get; set; }
 
-        public CatContext()
+        public CatContext(DbContextOptions<CatContext> options):base(options)
         {
             //Database.EnsureDeleted();
             Database.EnsureCreated();
@@ -22,7 +22,7 @@ namespace DAL.EF
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;");
+            //optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
