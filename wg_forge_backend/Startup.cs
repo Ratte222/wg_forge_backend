@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using BLL.Services;
 using BLL.Interfaces;
 
+
 namespace wg_forge_backend
 {
     public class Startup
@@ -68,6 +69,7 @@ namespace wg_forge_backend
                 //    name: "ping",
                 //    pattern: "/ping");                    
             });
+            
         }
     }
 }
