@@ -22,12 +22,16 @@ namespace wg_forge_backend.Controllers
             taskService = taskService_;
             logger = logger_;
         }
+        //если стоит атрибут ApiController и в аргументах объект класса у меня ошибка 415
         [Route("cats/")]
-        public IActionResult Cats(string attribute, string order, int? offset, int? limit
+        public IActionResult Cats(/*QueryCatColorInfoDTO queryCatColorInfoDTO*/
+            string attribute, string order, int? offset, int? limit
             //string? attribute = "color", string? order
             /*= "asc", int? offset = 5, int? limit = 2*/)
         {
-             return Json(taskService.GetCats(attribute, order, offset, limit));
+            return Json(taskService.GetCats(attribute, order, offset, limit
+                 /*queryCatColorInfoDTO.Attribute, queryCatColorInfoDTO.Order,
+                 //queryCatColorInfoDTO.Offset, queryCatColorInfoDTO.Limit*/));
             
         }
         [Route("ping/")]
@@ -46,8 +50,9 @@ namespace wg_forge_backend.Controllers
         {
             return Json(taskService.Exercise2());
         }
+        //если не стоит атрибут ApiController у меня класс не заполняется
         [Route("cat/"), HttpPost]
-        public async Task<IActionResult> AddNewCat(NewCatDTO newCatDTO)
+        public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {
             taskService.AddCat(newCatDTO);
             return StatusCode(200);
