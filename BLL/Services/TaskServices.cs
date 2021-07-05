@@ -11,6 +11,7 @@ using AutoMapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.ComponentModel.DataAnnotations;
 
 namespace BLL.Services
 {
@@ -29,22 +30,22 @@ namespace BLL.Services
                 attribute = "name";
             if ((attribute != "name") && (attribute != "color") &&
                 (attribute != "tail_length") && (attribute != "whiskers_length"))
-              throw new ValidationException(@"The ""attribute"" parameter is not correct. 
+              throw new BLL.Infrastructure.ValidationException(@"The ""attribute"" parameter is not correct. 
                     Use ""name"" or ""color"" or ""tail_length"" or ""whiskers_length""", "");
             order = order?.ToLower();
             if (!String.IsNullOrEmpty(order) && (!String.Equals(order, "asc") && !String.Equals(order, "desc")))
-                throw new ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""", "");
+                throw new BLL.Infrastructure.ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""", "");
             if(offset!=null)
             {
                 if(offset >= Database.Cats.Count())
-                    throw new ValidationException(@"The ""offset"" >= cats count", "");
+                    throw new BLL.Infrastructure.ValidationException(@"The ""offset"" >= cats count", "");
                 else if (offset < 0)
-                    throw new ValidationException(@"The ""offset"" cannot be less 0", "");
+                    throw new BLL.Infrastructure.ValidationException(@"The ""offset"" cannot be less 0", "");
             }
             if (limit != null)
             {                
                 if (limit < 1)
-                    throw new ValidationException(@"The ""limit"" cannot be less 1", "");
+                    throw new BLL.Infrastructure.ValidationException(@"The ""limit"" cannot be less 1", "");
             }
             List<Cat> cats = null;
             SqlParameter sqlLimit = new SqlParameter("@limit", limit),
@@ -102,7 +103,17 @@ namespace BLL.Services
             
             NewCatDTO newCatDTO = JsonSerializer.Deserialize<NewCatDTO>(jsonString);
             if(Database.Cats.Any(i=>i.Name == newCatDTO.Name))
-                throw new ValidationException("A cat with the same name already exists", "");
+                throw new BLL.Infrastructure.ValidationException("A cat with the same name already exists", "");
+            //var results = new List<ValidationResult>();
+            var context = new System.ComponentModel.DataAnnotations.ValidationContext(newCatDTO);
+            Validator.ValidateObject(newCatDTO, context, true);
+            //if (!Validator.TryValidateObject(newCatDTO, context, results, true))
+            //{
+            //    foreach (var error in results)
+            //    {
+            //        Console.WriteLine(error.ErrorMessage);
+            //    }
+            //}
             var config = new MapperConfiguration(cfg => cfg.CreateMap<NewCatDTO, Cat>());
             var mapper = new Mapper(config);
             Database.Cats.Add(mapper.Map<NewCatDTO, Cat>(newCatDTO));
