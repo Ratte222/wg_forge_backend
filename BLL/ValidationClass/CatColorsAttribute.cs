@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Linq;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using DAL.Entities;
 
-namespace DAL.Validation
+namespace BLL.ValidationClass
 {
     public class CatColorsAttribute : ValidationAttribute
     {
@@ -15,7 +13,7 @@ namespace DAL.Validation
 
             if (!string.IsNullOrEmpty(inputValue))
             {
-                isValid = Cat.CatColor.Any(i=>i == inputValue);
+                isValid = Cat.CatColor.Any(i => i == inputValue);
             }
 
             return isValid;

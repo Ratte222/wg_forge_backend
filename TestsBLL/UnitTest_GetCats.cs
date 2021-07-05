@@ -17,7 +17,7 @@ namespace TestsBLL
             DbContextOptionsBuilder<CatContext> options = new DbContextOptionsBuilder<CatContext>();
             options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;MultipleActiveResultSets=true");
             CatContext catContext = new CatContext(options.Options);
-            taskService = new TaskServices(catContext);
+            //taskService = new TaskServices(catContext);
         }
 
         [Test]

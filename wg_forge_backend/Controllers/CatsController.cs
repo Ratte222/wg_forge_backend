@@ -12,7 +12,7 @@ using System.Text.Json;
 
 namespace wg_forge_backend.Controllers
 {
-    
+    [ApiController]
     public class CatsController : Controller
     {
         private ITaskService taskService;
@@ -27,22 +27,8 @@ namespace wg_forge_backend.Controllers
             //string? attribute = "color", string? order
             /*= "asc", int? offset = 5, int? limit = 2*/)
         {
-            try
-            { return Json(taskService.GetCats(attribute, order, offset, limit)); }
-            catch(ValidationException ex)
-            {
-                //return this.Problem(ex.Message);
-                return this.BadRequest(ex.Message);
-            }
-            catch(SelectException ex)
-            {
-                return this.Problem(ex.Message);
-            }
-            catch(Exception ex)
-            {
-                logger.LogWarning($"{ex.Message}\r\n {ex?.StackTrace}");
-                return this.StatusCode(500);
-            }
+             return Json(taskService.GetCats(attribute, order, offset, limit));
+            
         }
         [Route("ping/")]
         public IActionResult Ping()
@@ -61,26 +47,9 @@ namespace wg_forge_backend.Controllers
             return Json(taskService.Exercise2());
         }
         [Route("cat/"), HttpPost]
-        public async Task<IActionResult> AddNewCat()
-        { 
-            using var reader = new StreamReader(Request.Body);
-            try
-            {
-                
-                string jsonString = await reader.ReadToEndAsync();
-                NewCatDTO newCatDTO = JsonSerializer.Deserialize<NewCatDTO>(jsonString);
-               taskService.AddCat(jsonString);
-            }
-            catch (ValidationException ex)
-            {
-                //return this.Problem(ex.Message);
-                return this.BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                logger.LogWarning($"{ex.Message}\r\n {ex?.StackTrace}");
-                return StatusCode(500);
-            }
+        public async Task<IActionResult> AddNewCat(NewCatDTO newCatDTO)
+        {
+            taskService.AddCat(newCatDTO);
             return StatusCode(200);
         }
     }

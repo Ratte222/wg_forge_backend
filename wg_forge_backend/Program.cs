@@ -20,7 +20,8 @@ namespace wg_forge_backend
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>()/*.UseKestrel(i => i.Limits.MaxConcurrentConnections = 600)*/;
+
                 });
     }
 }

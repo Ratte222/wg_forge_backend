@@ -9,6 +9,7 @@ using DAL.EF;
 using BLL.Services;
 using BLL.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace wg_forge_backend
 {
@@ -28,6 +29,8 @@ namespace wg_forge_backend
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
             services.AddScoped<ITaskService, TaskServices>();
             services.AddControllersWithViews();
+            services.AddAutoMapper(typeof(CatProfile));
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,24 +52,12 @@ namespace wg_forge_backend
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseMiddleware<ExeptionMeddleware>();
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapGet("/ping", async context =>
-                //{
-                //    await context.Response.WriteAsync(taskService.Ping());
-                //});
-                //endpoints.Map("/cats", async context =>
-                //{
-                //    await context.Response.Redirect("~/Home/About");
-                //});
-                //endpoints.MapControllerRoute(name: "cats", pattern: );
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{*catchall}");
-                //endpoints.MapControllerRoute(
-                //    name: "ping",
-                //    pattern: "/ping");                    
             });
         }
     }

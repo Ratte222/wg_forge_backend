@@ -10,17 +10,16 @@ using DAL.Entities;
 using AutoMapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using System.ComponentModel.DataAnnotations;
 
 namespace BLL.Services
 {
     public class TaskServices:ITaskService
     {
         CatContext Database { get; set; }
-        public TaskServices(CatContext catContext)
+        private readonly IMapper _mapper;
+        public TaskServices(CatContext catContext, IMapper mapper)
         {
-            //Database = new CatContext();
+            _mapper = mapper;
             Database = catContext;
         }
 
@@ -35,7 +34,7 @@ namespace BLL.Services
             order = order?.ToLower();
             if (!String.IsNullOrEmpty(order) && (!String.Equals(order, "asc") && !String.Equals(order, "desc")))
                 throw new BLL.Infrastructure.ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""", "");
-            if(offset!=null)
+            if(offset!=null)    
             {
                 if(offset >= Database.Cats.Count())
                     throw new BLL.Infrastructure.ValidationException(@"The ""offset"" >= cats count", "");
@@ -75,51 +74,28 @@ namespace BLL.Services
             {
                 throw new SelectException("No objects found ", "");                
             }
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<Cat, CatDTO>());
-            var mapper = new Mapper(config);
-            return  mapper.Map<List<Cat>, List<CatDTO>>(cats);            
+            return  _mapper.Map<List<Cat>, List<CatDTO>>(cats);            
         }
 
         public List<CatColorInfoDTO> Exercise1()
         {
             new Exercises().ProcessingExercise1(Database);
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<CatColorInfo, CatColorInfoDTO>());
-            var mapper = new Mapper(config);
-            return mapper.Map<List<CatColorInfo>, List<CatColorInfoDTO>>(
+            return _mapper.Map<List<CatColorInfo>, List<CatColorInfoDTO>>(
                 Database.CatColorInfos.Select(i => i).ToList());//тут делаю выборку для проверки привильности записанных данных
         }
 
         public CatStatDTO Exercise2()
         {
             new Exercises().ProcessingExercise2(Database);
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<CatStat, CatStatDTO>());
-            var mapper = new Mapper(config);
-            return mapper.Map<CatStat, CatStatDTO>(
+            return _mapper.Map<CatStat, CatStatDTO>(
                 Database.CatStats.Select(i => i).Single());//тут делаю выборку для проверки привильности записанных данных
         }
 
-        public void AddCat(string jsonString)
-        {
-            
-            NewCatDTO newCatDTO = JsonSerializer.Deserialize<NewCatDTO>(jsonString);
+        public void AddCat(NewCatDTO newCatDTO)
+        {   
             if(Database.Cats.Any(i=>i.Name == newCatDTO.Name))
                 throw new BLL.Infrastructure.ValidationException("A cat with the same name already exists", "");
-            //var results = new List<ValidationResult>();
-            var context = new System.ComponentModel.DataAnnotations.ValidationContext(newCatDTO);
-            Validator.ValidateObject(newCatDTO, context, true);
-            //if (!Validator.TryValidateObject(newCatDTO, context, results, true))
-            //{
-            //    foreach (var error in results)
-            //    {
-            //        Console.WriteLine(error.ErrorMessage);
-            //    }
-            //}
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<NewCatDTO, Cat>());
-            var mapper = new Mapper(config);
-            Database.Cats.Add(mapper.Map<NewCatDTO, Cat>(newCatDTO));
-
-            
-
+            Database.Cats.Add(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
             Database.SaveChanges();
         }
 
