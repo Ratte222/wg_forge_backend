@@ -10,7 +10,7 @@ namespace BLL.BusinessModels
     {
         public void ProcessingExercise1(CatContext db)
         {
-            List<CatColorInfo> catInfoNow = db.CatColorInfos.Select(i => i).ToList();
+            List<CatColorInfo> catInfoNow = db.CatColorInfos.ToList();
             if(catInfoNow.Count == 0)
             {
                 IEnumerable<CatColorInfo> query = db.Cats.GroupBy(
