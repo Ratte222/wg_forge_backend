@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DAL.EF;
+using DAL.Interface;
 using DAL.Entities;
 
 namespace BLL.BusinessModels
 {
     public class Exercises
     {
-        public void ProcessingExercise1(CatContext db)
+        public void ProcessingExercise1(IRepository<Cat> repoCat, IRepository<CatColorInfo> repoCatColorInfo)
         {
-            List<CatColorInfo> catInfoNow = db.CatColorInfos.ToList();
+            List<CatColorInfo> catInfoNow = repoCatColorInfo.GetAll_Enumerable().ToList();
             if(catInfoNow.Count == 0)
             {
-                IEnumerable<CatColorInfo> query = db.Cats.GroupBy(
+                IEnumerable<CatColorInfo> query = repoCat.GetAll_Queryable().GroupBy(
                 cat => cat.Color,
                 cat => cat.Color,
                 (keyColor, color) => new CatColorInfo
@@ -22,14 +22,13 @@ namespace BLL.BusinessModels
                     Count = color.Count()
                 }).AsEnumerable();
 
-                db.CatColorInfos.AddRange(query);
+                repoCatColorInfo.CreateRange(query);
 
-                db.SaveChanges();
             }            
         }
-        public void ProcessingExercise2(CatContext db)
+        public void ProcessingExercise2(IRepository<Cat> repoCat, IRepository<CatStat> repoCatStat)
         {
-            List<Cat> cats = db.Cats.OrderBy(i => i.TailLength).ToList();
+            List<Cat> cats = repoCat.GetAll_Queryable().OrderBy(i => i.TailLength).ToList();
             CatStat stats = new CatStat();
             stats.TailLengthMean = (decimal)cats.Average(i => i.TailLength);
             stats.WiskersLengthMean = (decimal)cats.Average(i => i.WhiskersLength);
@@ -56,14 +55,14 @@ namespace BLL.BusinessModels
                            select Convert.ToDouble(i.WhiskersLength)).ToArray();
             stats.WiskersLengthMode = Convert.ToInt32(Mode(vs));
             #endregion
-            if(db.CatStats.Count() > 0)
+            if(repoCatStat.GetAll_Queryable().Count() > 0)
             {
                 stats.Id = 1;
-                db.CatStats.Update(stats);
+                repoCatStat.Update(stats);
             }
             else
-                db.CatStats.Add(stats);
-            db.SaveChanges();
+                repoCatStat.Create(stats);
+            
         }
 
         static double Mode(double[] arr)

@@ -6,6 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DAL.EF;
+using DAL.Entities;
+using DAL.Interface;
+using DAL;  
 using BLL.Services;
 using BLL.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +33,9 @@ namespace wg_forge_backend
             services.AddScoped<ITaskService, TaskServices>();
             services.AddControllersWithViews();
             services.AddAutoMapper(typeof(CatProfile));
-            
+            services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
+            services.AddScoped(typeof(IRepository<CatColorInfo>), typeof(Repository<CatColorInfo>));
+            services.AddScoped(typeof(IRepository<CatStat>), typeof(Repository<CatStat>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

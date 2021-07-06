@@ -51,6 +51,15 @@ namespace wg_forge_backend.Controllers
             return Json(taskService.Exercise2());
         }
         //если не стоит атрибут ApiController у меня класс не заполняется
+        
+        //old addCat
+        //[Route("cat/"), HttpPost]
+        //public IActionResult AddNewCat(NewCatDTO newCatDTO)
+        //{
+        //    taskService.AddCat(newCatDTO);
+        //    return StatusCode(200);
+        //}
+
         [Route("cat/"), HttpPost]
         public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {

@@ -5,7 +5,7 @@ using BLL.Interfaces;
 using BLL.Infrastructure;
 using BLL.DTO;
 using BLL.BusinessModels;
-using DAL.EF;
+using DAL.Interface;
 using DAL.Entities;
 using AutoMapper;
 using Microsoft.Data.SqlClient;
@@ -15,12 +15,18 @@ namespace BLL.Services
 {
     public class TaskServices:ITaskService
     {
-        CatContext Database { get; set; }
+        //CatContext Database { get; set; }
+        private IRepository<Cat> repoCat;
+        private IRepository<CatColorInfo> repoCatColorInfo;
+        private IRepository<CatStat> repoCatStat;
         private readonly IMapper _mapper;
-        public TaskServices(CatContext catContext, IMapper mapper)
+        public TaskServices(IRepository<Cat> repoCat, IRepository<CatColorInfo> repoCatColorInfo,
+            IRepository<CatStat> repoCatStat, IMapper mapper)
         {
             _mapper = mapper;
-            Database = catContext;
+            this.repoCat = repoCat;
+            this.repoCatColorInfo = repoCatColorInfo;
+            this.repoCatStat = repoCatStat;
         }
 
         public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)
@@ -36,7 +42,7 @@ namespace BLL.Services
                 throw new BLL.Infrastructure.ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""", "");
             if (offset != null)
             {
-                if (offset >= Database.Cats.Count())
+                if (offset >= repoCat.GetAll_Queryable().Count())
                     throw new BLL.Infrastructure.ValidationException(@"The ""offset"" >= cats count", "");
                 else if (offset < 0)
                     throw new BLL.Infrastructure.ValidationException(@"The ""offset"" cannot be less 0", "");
@@ -52,24 +58,24 @@ namespace BLL.Services
             if(order == "desc")
             {
                 if (attribute == "name")
-                    query = Database.Cats.OrderByDescending(i => i.Name).Skip((int)offset);
+                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Name).Skip((int)offset);
                 else if (attribute == "color")
-                    query = Database.Cats.OrderByDescending(i => i.Color).Skip((int)offset);
+                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Color).Skip((int)offset);
                 else if (attribute == "tail_length")
-                    query = Database.Cats.OrderByDescending(i => i.TailLength).Skip((int)offset);
+                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.TailLength).Skip((int)offset);
                 else if (attribute == "whiskers_length")
-                    query = Database.Cats.OrderByDescending(i => i.WhiskersLength).Skip((int)offset);                
+                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.WhiskersLength).Skip((int)offset);                
             }
             else
             {
                 if (attribute == "name")
-                    query = Database.Cats.OrderBy(i => i.Name).Skip((int)offset);
+                    query = repoCat.GetAll_Queryable().OrderBy(i => i.Name).Skip((int)offset);
                 else if (attribute == "color")
-                    query = Database.Cats.OrderBy(i => i.Color).Skip((int)offset);
+                    query = repoCat.GetAll_Queryable().OrderBy(i => i.Color).Skip((int)offset);
                 else if (attribute == "tail_length")
-                    query = Database.Cats.OrderBy(i => i.TailLength).Skip((int)offset);
+                    query = repoCat.GetAll_Queryable().OrderBy(i => i.TailLength).Skip((int)offset);
                 else if (attribute == "whiskers_length")
-                    query = Database.Cats.OrderBy(i => i.WhiskersLength).Skip((int)offset);
+                    query = repoCat.GetAll_Queryable().OrderBy(i => i.WhiskersLength).Skip((int)offset);
             }
             if(limit!=null)
                 cats = query.Take((int)limit).ToList();
@@ -84,37 +90,29 @@ namespace BLL.Services
 
         public List<CatColorInfoDTO> Exercise1()
         {
-            new Exercises().ProcessingExercise1(Database);
+            new Exercises().ProcessingExercise1(repoCat, repoCatColorInfo);
             return _mapper.Map<List<CatColorInfo>, List<CatColorInfoDTO>>(
-                Database.CatColorInfos.Select(i => i).ToList());//тут делаю выборку для проверки привильности записанных данных
+                repoCatColorInfo.GetAll_Enumerable().ToList());//тут делаю выборку для проверки привильности записанных данных
         }
 
         public CatStatDTO Exercise2()
         {
-            new Exercises().ProcessingExercise2(Database);
+            new Exercises().ProcessingExercise2(repoCat, repoCatStat);
             return _mapper.Map<CatStat, CatStatDTO>(
-                Database.CatStats.Select(i => i).Single());//тут делаю выборку для проверки привильности записанных данных
+                repoCatStat.GetAll_Enumerable().Single());//тут делаю выборку для проверки привильности записанных данных
         }
 
         public void AddCat(NewCatDTO newCatDTO)
         {   
-            if(Database.Cats.Any(i=>i.Name == newCatDTO.Name))
+            if(repoCat.GetAll_Queryable().Any(i=>i.Name == newCatDTO.Name))
                 throw new BLL.Infrastructure.ValidationException("A cat with the same name already exists", "");
-            Database.Cats.Add(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
-            Database.SaveChanges();
+            repoCat.Create(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
+            
         }
 
         public string Ping()
         {
             return "Cats Service. Version 0.1";
-        }
-
-        
-
-
-        public void Dispose()
-        {
-            Database.Dispose();
         }
     }
 }
