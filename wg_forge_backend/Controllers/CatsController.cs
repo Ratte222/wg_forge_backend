@@ -53,6 +53,8 @@ namespace wg_forge_backend.Controllers
         [Route("cat/"), HttpPost]
         public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {
+            if (!ModelState.IsValid)//added for passing tests
+                return BadRequest();
             taskService.AddCat(newCatDTO);
             return StatusCode(200);
         }
@@ -60,6 +62,8 @@ namespace wg_forge_backend.Controllers
         [Route("cat/Edit/"), HttpPost]
         public IActionResult CatEdit(NewCatDTO newCatDTO)
         {
+            if (!ModelState.IsValid)//added for passing tests
+                return BadRequest();
             taskService.EditCat(newCatDTO);
             return StatusCode(200);
         }
@@ -67,6 +71,8 @@ namespace wg_forge_backend.Controllers
         [Route("cat/Delete/"), HttpPost]
         public IActionResult CatDelete(CatDTO catDTO)
         {
+            if (!ModelState.IsValid)//added for passing tests
+                return BadRequest();
             taskService.DeleteCat(catDTO);
             return StatusCode(200);
         }

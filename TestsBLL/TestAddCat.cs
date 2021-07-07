@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+﻿using Xunit;
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.EF;
@@ -13,7 +13,7 @@ namespace TestsBLL
     public class TestAddCat
     {
         private ITaskService taskService;
-        [SetUp]
+        
         public void Setup()
         {
             DbContextOptionsBuilder<CatContext> options = new DbContextOptionsBuilder<CatContext>();

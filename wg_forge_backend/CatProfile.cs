@@ -17,6 +17,7 @@ namespace wg_forge_backend
             CreateMap<CatColorInfo, CatColorInfoDTO>();
             CreateMap<CatStat, CatStatDTO>();
             CreateMap<NewCatDTO, Cat>();
+            CreateMap<NewCatDTO, CatDTO>();
         }
     }
 }

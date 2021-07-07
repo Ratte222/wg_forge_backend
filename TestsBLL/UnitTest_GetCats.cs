@@ -1,4 +1,4 @@
-using NUnit.Framework;
+using Xunit;
 using BLL.Interfaces;
 using BLL.Services;
 using DAL.EF;
@@ -20,7 +20,7 @@ namespace TestsBLL
             //taskService = new TaskServices(catContext);
         }
 
-        [Test]
+        [Fact]
         public void TestGetCats()
         {
             // Arrange
@@ -38,7 +38,7 @@ namespace TestsBLL
             Assert.IsNotNull(taskService.GetCats(null, null, 5, 3));            
             Assert.IsNotNull(taskService.GetCats("color", "desc", 3, 8));            
         }
-        [Test]
+        [Fact]
         public void TestValidationException()
         {
             // Arrange

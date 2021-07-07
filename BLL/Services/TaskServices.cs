@@ -35,8 +35,8 @@ namespace BLL.Services
                 attribute = "name";
             if ((attribute != "name") && (attribute != "color") &&
                 (attribute != "tail_length") && (attribute != "whiskers_length"))
-              throw new BLL.Infrastructure.ValidationException(@"The ""attribute"" parameter is not correct. 
-                    Use ""name"" or ""color"" or ""tail_length"" or ""whiskers_length""", "");
+              throw new BLL.Infrastructure.ValidationException(@"The ""attribute"" parameter is not correct. " + 
+                    @"Use ""name"" or ""color"" or ""tail_length"" or ""whiskers_length""", "");
             order = order?.ToLower();
             if (!String.IsNullOrEmpty(order) && (!String.Equals(order, "asc") && !String.Equals(order, "desc")))
                 throw new BLL.Infrastructure.ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""", "");
@@ -112,6 +112,8 @@ namespace BLL.Services
 
         public void EditCat(NewCatDTO newCatDTO)
         {
+            if (!repoCat.GetAll_Queryable().Any(i => i.Name == newCatDTO.Name))
+                throw new ValidationException("A cat with the same name already not exists", "");
             repoCat.Update(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
         }
 
