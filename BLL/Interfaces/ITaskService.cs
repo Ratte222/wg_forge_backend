@@ -12,6 +12,7 @@ namespace BLL.Interfaces
         List<CatColorInfoDTO> Exercise1();
         CatStatDTO Exercise2();
         void AddCat(NewCatDTO newCatDTO);
-        
+        void EditCat(NewCatDTO newCatDTO);
+        void DeleteCat(CatDTO catDTO);
     }
 }

@@ -62,6 +62,7 @@ namespace DAL
             {
                 throw new ArgumentNullException("entity");
             }
+            entities.Update(entity);
             context.SaveChanges();
         }
         public void Delete(T entity)

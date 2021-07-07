@@ -13,6 +13,7 @@ namespace wg_forge_backend
         public CatProfile()
         {
             CreateMap<Cat, CatDTO>();
+            CreateMap<CatDTO, Cat>();
             CreateMap<CatColorInfo, CatColorInfoDTO>();
             CreateMap<CatStat, CatStatDTO>();
             CreateMap<NewCatDTO, Cat>();

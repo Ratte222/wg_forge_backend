@@ -16,11 +16,9 @@ namespace wg_forge_backend.Controllers
     public class CatsController : Controller
     {
         private ITaskService taskService;
-        private ILogger<CatsController> logger;
-        public CatsController(ITaskService taskService_, ILogger<CatsController> logger_)
+        public CatsController(ITaskService taskService_)
         {
             taskService = taskService_;
-            logger = logger_;
         }
         //если стоит атрибут ApiController и в аргументах объект класса у меня ошибка 415
         [Route("cats/")]
@@ -51,19 +49,25 @@ namespace wg_forge_backend.Controllers
             return Json(taskService.Exercise2());
         }
         //если не стоит атрибут ApiController у меня класс не заполняется
-        
-        //old addCat
-        //[Route("cat/"), HttpPost]
-        //public IActionResult AddNewCat(NewCatDTO newCatDTO)
-        //{
-        //    taskService.AddCat(newCatDTO);
-        //    return StatusCode(200);
-        //}
 
         [Route("cat/"), HttpPost]
         public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {
             taskService.AddCat(newCatDTO);
+            return StatusCode(200);
+        }
+
+        [Route("cat/Edit/"), HttpPost]
+        public IActionResult CatEdit(NewCatDTO newCatDTO)
+        {
+            taskService.EditCat(newCatDTO);
+            return StatusCode(200);
+        }
+
+        [Route("cat/Delete/"), HttpPost]
+        public IActionResult CatDelete(CatDTO catDTO)
+        {
+            taskService.DeleteCat(catDTO);
             return StatusCode(200);
         }
     }

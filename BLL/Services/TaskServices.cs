@@ -110,6 +110,16 @@ namespace BLL.Services
             
         }
 
+        public void EditCat(NewCatDTO newCatDTO)
+        {
+            repoCat.Update(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
+        }
+
+        public void DeleteCat(CatDTO catDTO)
+        {
+            repoCat.Delete(_mapper.Map<CatDTO, Cat>(catDTO));
+        }
+
         public string Ping()
         {
             return "Cats Service. Version 0.1";
