@@ -84,6 +84,7 @@ namespace Tests
                 Returns(GetTestCats().AsQueryable<Cat>());
             //Act
             taskServices.EditCat(newCatDTO_Tihon);
+            //taskServices.EditCat(_mapper.Map<NewCatDTO, CatDTO>(newCatDTO_Tihon));
             //Assert
             mockRepoCat.Verify(i => i.Update(It.IsAny<Cat>()));
         }
@@ -99,6 +100,7 @@ namespace Tests
             //Assert
             Assert.Throws<ValidationException>(() => 
                 taskServices.EditCat(newCatDTO_Artur));            
+                //taskServices.EditCat(_mapper.Map<NewCatDTO, CatDTO>(newCatDTO_Artur)));            
         }
 
         [Fact]
@@ -114,12 +116,12 @@ namespace Tests
 
         [Theory]
         [InlineData(null, null, null, null, 4)]
-        [InlineData("color", null, null, null, 4)]
-        [InlineData("color", "desc", null, null, 4)]
+        [InlineData("Color", null, null, null, 4)]
+        [InlineData("Color", "desc", null, null, 4)]
         [InlineData(null, null, 2, null, 2)]
         [InlineData(null, null, null, 3, 3)]
         [InlineData(null, null, 2, 3, 2)]
-        [InlineData("color", "desc", 3, 8, 1)]
+        [InlineData("Color", "desc", 3, 8, 1)]
         public void GetCatsReturnEnumerable(string attribute, string order,
             int? offset, int? limit, int count)
         {
@@ -135,13 +137,13 @@ namespace Tests
         }
 
         [Theory]
-        [InlineData("names", null, null, null, @"The ""attribute"" parameter is not correct. " +
-                    @"Use ""name"" or ""color"" or ""tail_length"" or ""whiskers_length""")]
-        [InlineData("name", "descend", null, null, @"The ""order"" parameter "+
+        [InlineData("Names", null, null, null, @"The ""attribute"" parameter is not correct. " +
+                    @"Use ""Name"" or ""Color"" or ""TailLength"" or ""WhiskersLength""")]
+        [InlineData("Name", "descend", null, null, @"The ""order"" parameter "+
                     @"is not correct. Use ""asc"" or ""desc""")]
-        [InlineData("name", "desc", 10, null, @"The ""offset"" >= cats count")]
-        [InlineData("name", "desc", -1, null, @"The ""offset"" cannot be less 0")]  
-        [InlineData("name", "desc", 1, 0, @"The ""limit"" cannot be less 1")]
+        [InlineData("Name", "desc", 10, null, @"The ""offset"" >= cats count")]
+        [InlineData("Name", "desc", -1, null, @"The ""offset"" cannot be less 0")]  
+        [InlineData("Name", "desc", 1, 0, @"The ""limit"" cannot be less 1")]
         public void GetCatsReturnValidationException(string attribute, string order,
             int? offset, int? limit, string message)
         {

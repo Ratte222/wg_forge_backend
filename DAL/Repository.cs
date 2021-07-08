@@ -11,7 +11,7 @@ namespace DAL
     {
         private readonly CatContext context;
         private DbSet<T> entities;
-        string errorMessage = string.Empty;
+        //string errorMessage = string.Empty;
 
         public Repository(CatContext context)
         {
@@ -61,7 +61,7 @@ namespace DAL
             if (entity == null)
             {
                 throw new ArgumentNullException("entity");
-            }            
+            }
             entities.Update(entity);
             context.SaveChanges();
         }

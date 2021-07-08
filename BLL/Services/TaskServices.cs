@@ -32,58 +32,62 @@ namespace BLL.Services
         public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)
         {
             if (attribute == null)
-                attribute = "name";
-            if ((attribute != "name") && (attribute != "color") &&
-                (attribute != "tail_length") && (attribute != "whiskers_length"))
-              throw new BLL.Infrastructure.ValidationException(@"The ""attribute"" parameter is not correct. " + 
-                    @"Use ""name"" or ""color"" or ""tail_length"" or ""whiskers_length""", "");
+                attribute = "Name";
+            if ((attribute != "Name") && (attribute != "Color") &&
+                (attribute != "TailLength") && (attribute != "WhiskersLength"))
+              throw new BLL.Infrastructure.ValidationException(@"The ""attribute"" parameter is not correct. " +
+                    @"Use ""Name"" or ""Color"" or ""TailLength"" or ""WhiskersLength""");
             order = order?.ToLower();
             if (!String.IsNullOrEmpty(order) && (!String.Equals(order, "asc") && !String.Equals(order, "desc")))
-                throw new BLL.Infrastructure.ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""", "");
+                throw new BLL.Infrastructure.ValidationException(@"The ""order"" parameter is not correct. Use ""asc"" or ""desc""");
+            bool orderBy = false;
+            if (String.Equals(order, "desc"))
+                orderBy = true;
             if (offset != null)
             {
                 if (offset >= repoCat.GetAll_Queryable().Count())
-                    throw new BLL.Infrastructure.ValidationException(@"The ""offset"" >= cats count", "");
+                    throw new BLL.Infrastructure.ValidationException(@"The ""offset"" >= cats count");
                 else if (offset < 0)
-                    throw new BLL.Infrastructure.ValidationException(@"The ""offset"" cannot be less 0", "");
+                    throw new BLL.Infrastructure.ValidationException(@"The ""offset"" cannot be less 0");
             }
             else if (offset == null) offset = 0;
             if (limit != null)
             {                
                 if (limit < 1)
-                    throw new BLL.Infrastructure.ValidationException(@"The ""limit"" cannot be less 1", "");
+                    throw new BLL.Infrastructure.ValidationException(@"The ""limit"" cannot be less 1");
             }
             List<Cat> cats = null;
-            IQueryable<Cat> query = null;
-            if(order == "desc")
-            {
-                if (attribute == "name")
-                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Name).Skip((int)offset);
-                else if (attribute == "color")
-                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Color).Skip((int)offset);
-                else if (attribute == "tail_length")
-                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.TailLength).Skip((int)offset);
-                else if (attribute == "whiskers_length")
-                    query = repoCat.GetAll_Queryable().OrderByDescending(i => i.WhiskersLength).Skip((int)offset);                
-            }
-            else
-            {
-                if (attribute == "name")
-                    query = repoCat.GetAll_Queryable().OrderBy(i => i.Name).Skip((int)offset);
-                else if (attribute == "color")
-                    query = repoCat.GetAll_Queryable().OrderBy(i => i.Color).Skip((int)offset);
-                else if (attribute == "tail_length")
-                    query = repoCat.GetAll_Queryable().OrderBy(i => i.TailLength).Skip((int)offset);
-                else if (attribute == "whiskers_length")
-                    query = repoCat.GetAll_Queryable().OrderBy(i => i.WhiskersLength).Skip((int)offset);
-            }
+            IQueryable<Cat> query = repoCat.GetAll_Queryable().OrderBy(attribute, orderBy).Skip((int)offset);
+
+            //if (order == "desc")
+            //{
+            //    if (attribute == "name")
+            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Name).Skip((int)offset);
+            //    else if (attribute == "color")
+            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Color).Skip((int)offset);
+            //    else if (attribute == "tail_length")
+            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.TailLength).Skip((int)offset);
+            //    else if (attribute == "whiskers_length")
+            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.WhiskersLength).Skip((int)offset);                
+            //}
+            //else
+            //{
+            //    if (attribute == "name")
+            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.Name).Skip((int)offset);
+            //    else if (attribute == "color")
+            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.Color).Skip((int)offset);
+            //    else if (attribute == "tail_length")
+            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.TailLength).Skip((int)offset);
+            //    else if (attribute == "whiskers_length")
+            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.WhiskersLength).Skip((int)offset);
+            //}
             if(limit!=null)
                 cats = query.Take((int)limit).ToList();
             else
                 cats = query.ToList();
             if (cats == null)
             {
-                throw new SelectException("No objects found ", "");                
+                throw new SelectException("No objects found ");                
             }
             return  _mapper.Map<List<Cat>, List<CatDTO>>(cats);            
         }
@@ -104,17 +108,17 @@ namespace BLL.Services
 
         public void AddCat(NewCatDTO newCatDTO)
         {   
-            if(repoCat.GetAll_Queryable().Any(i=>i.Name == newCatDTO.Name))
-                throw new BLL.Infrastructure.ValidationException("A cat with the same name already exists", "");
+            if(repoCat.GetAll_Queryable().Any(i=>i.Name.ToLower() == newCatDTO.Name.ToLower()))
+                throw new BLL.Infrastructure.ValidationException("A cat with the same name already exists");
             repoCat.Create(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
             
         }
 
-        public void EditCat(NewCatDTO newCatDTO)
+        public void EditCat(NewCatDTO catDTO)
         {
-            if (!repoCat.GetAll_Queryable().Any(i => i.Name == newCatDTO.Name))
-                throw new ValidationException("A cat with the same name already not exists", "");
-            repoCat.Update(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
+            if (!repoCat.GetAll_Queryable().Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
+                throw new ValidationException("A cat with the same name already not exists");
+            repoCat.Update(_mapper.Map<NewCatDTO, Cat>(catDTO));
         }
 
         public void DeleteCat(CatDTO catDTO)

@@ -50,7 +50,7 @@ namespace wg_forge_backend.Controllers
         }
         //если не стоит атрибут ApiController у меня класс не заполняется
 
-        [Route("cat/"), HttpPost]
+        [HttpPost("cat/")]
         public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {
             if (!ModelState.IsValid)//added for passing tests
@@ -59,7 +59,16 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200);
         }
 
-        [Route("cat/Edit/"), HttpPost]
+        //[HttpPost("cat/Edit/")]
+        //public IActionResult CatEdit(NewCatDTO newCatDTO)
+        //{
+        //    if (!ModelState.IsValid)//added for passing tests
+        //        return BadRequest();
+        //    taskService.EditCat(newCatDTO);
+        //    return StatusCode(200);
+        //}
+
+        [HttpPut("cat/Edit/")]
         public IActionResult CatEdit(NewCatDTO newCatDTO)
         {
             if (!ModelState.IsValid)//added for passing tests
@@ -68,12 +77,23 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200);
         }
 
-        [Route("cat/Delete/"), HttpPost]
+        //[HttpPost("cat/Delete/")]
+        //public IActionResult CatDelete(CatDTO catDTO)
+        //{
+        //    if (!ModelState.IsValid)//added for passing tests
+        //        return BadRequest();
+        //    taskService.DeleteCat(catDTO);
+        //    return StatusCode(200);
+        //}
+        //[HttpPost("cat/Delete/")]
+        //[HttpDelete("cat/Delete/")]
+        [HttpPut("cat/Delete/")]
         public IActionResult CatDelete(CatDTO catDTO)
         {
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
             taskService.DeleteCat(catDTO);
+            //taskService.DeleteCat(new CatDTO {Name = Name });
             return StatusCode(200);
         }
     }
