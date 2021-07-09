@@ -13,6 +13,8 @@ using BLL.Services;
 using BLL.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using System.IO;
+using Microsoft.OpenApi.Models;
 
 namespace wg_forge_backend
 {
@@ -36,11 +38,21 @@ namespace wg_forge_backend
             services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
             services.AddScoped(typeof(IRepository<CatColorInfo>), typeof(Repository<CatColorInfo>));
             services.AddScoped(typeof(IRepository<CatStat>), typeof(Repository<CatStat>));
+            //services.AddScoped<IRepository, Repository>();
+            services.AddSwaggerGen(c=>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cat API", Version = "v1", });                
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cat API v1");
+            });
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

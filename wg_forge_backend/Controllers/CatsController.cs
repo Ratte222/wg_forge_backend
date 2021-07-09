@@ -21,7 +21,7 @@ namespace wg_forge_backend.Controllers
             taskService = taskService_;
         }
         //если стоит атрибут ApiController и в аргументах объект класса у меня ошибка 415
-        [Route("cats/")]
+        [HttpGet("cats/")]
         public IActionResult Cats(/*QueryCatColorInfoDTO queryCatColorInfoDTO*/
             string attribute, string order, int? offset, int? limit
             //string? attribute = "color", string? order
@@ -32,18 +32,18 @@ namespace wg_forge_backend.Controllers
                  //queryCatColorInfoDTO.Offset, queryCatColorInfoDTO.Limit*/));
             
         }
-        [Route("ping/")]
+        [HttpGet("ping/")]
         public IActionResult Ping()
         {
             return Content(taskService.Ping());
         }
 
-        [Route("ex_1/")]//проборосил сюда для наглядности
+        [HttpGet("ex_1/")]//проборосил сюда для наглядности
         public IActionResult Exercise1()
         {
             return Json(taskService.Exercise1());
         }
-        [Route("ex_2/")]//проборосил сюда для наглядности
+        [HttpGet("ex_2/")]//проборосил сюда для наглядности
         public IActionResult Exercise2()
         {
             return Json(taskService.Exercise2());
@@ -77,14 +77,6 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200);
         }
 
-        //[HttpPost("cat/Delete/")]
-        //public IActionResult CatDelete(CatDTO catDTO)
-        //{
-        //    if (!ModelState.IsValid)//added for passing tests
-        //        return BadRequest();
-        //    taskService.DeleteCat(catDTO);
-        //    return StatusCode(200);
-        //}
         //[HttpPost("cat/Delete/")]
         //[HttpDelete("cat/Delete/")]
         [HttpPut("cat/Delete/")]
