@@ -52,6 +52,36 @@ namespace Tests
             Assert.IsType<JsonResult>(result);
         }
 
+        [Fact]
+        public void GetCatOwnersReturnJson()
+        {
+            //Arrange
+            mockITaskService.Setup(task => task.GetCatOwners()).Returns(GetTestCatOwners());
+            var controller = new CatsController(mockITaskService.Object);
+            //Act
+            var result = controller.CatOwners();
+            //Assert
+            Assert.IsType<JsonResult>(result);
+        }
+
+        private List<CatOwnerDTO> GetTestCatOwners()
+        {
+            return new List<CatOwnerDTO>
+            {
+                new CatOwnerDTO { Name = "Atrur", Age = 21, Cats = new List<CatDTO>
+                {
+                    new CatDTO { Name = "Tihon", Color = "red & white", TailLength = 15, WhiskersLength = 12 }
+                },
+                },
+                new CatOwnerDTO { Name = "Tom", Age = 24, Cats = new List<CatDTO>
+                {
+                    new CatDTO { Name = "Marfa", Color = "black & white", TailLength = 13, WhiskersLength = 11 },
+                new CatDTO { Name = "Kelly", Color = "red & white", TailLength = 26, WhiskersLength = 11 }
+                },
+                }
+            };
+        }
+
         private List<CatDTO> GetTestCats()
         {
             var cats = new List<CatDTO>

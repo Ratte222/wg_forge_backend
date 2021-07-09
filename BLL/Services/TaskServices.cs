@@ -96,10 +96,8 @@ namespace BLL.Services
 
         public List<CatOwnerDTO> GetCatOwners()
         {
-            //List<CatOwner> catOwners = (from catOwner in repoCatOwners.GetAll_Queryable()
-            //                            join cat in repoCat.GetAll_Queryable() on catOwner.Id equals cat.CatOwnerId
-            //                            select catOwner).ToList();
-            List<CatOwner> catOwners = repoCatOwners.GetAll_Queryable().Include(u=>u.Cats).ToList();
+            List<CatOwner> catOwners = repoCatOwners.GetAll_Queryable()
+                .Include(u=>u.Cats).OrderBy(i => i.Name).ToList();
             return _mapper.Map<List<CatOwner>, List<CatOwnerDTO>>(catOwners);
         }
 

@@ -18,6 +18,7 @@ namespace Tests
         Mock<IRepository<Cat>> mockRepoCat;
         Mock<IRepository<CatColorInfo>> mockRepoCatColorInfo;
         Mock<IRepository<CatStat>> mockRepoCatStat;
+        Mock<IRepository<CatOwner>> mockRepoCatOwner;
         MapperConfiguration mapperConfig;
         IMapper _mapper;
         TaskServices taskServices;
@@ -39,15 +40,17 @@ namespace Tests
         {
             mockRepoCat = new Mock<IRepository<Cat>>();
             mockRepoCatColorInfo =
-            new Mock<IRepository<CatColorInfo>>();
+                new Mock<IRepository<CatColorInfo>>();
             mockRepoCatStat =
-            new Mock<IRepository<CatStat>>();
+                new Mock<IRepository<CatStat>>();
+            mockRepoCatOwner =
+                new Mock<IRepository<CatOwner>>();
             mapperConfig =
-            new MapperConfiguration(cfg => cfg.AddProfile(typeof(CatProfile)));
+                new MapperConfiguration(cfg => cfg.AddProfile(typeof(CatProfile)));
             _mapper = mapperConfig.CreateMapper();
             taskServices = new TaskServices(mockRepoCat.Object,
-                mockRepoCatColorInfo.Object,
-                mockRepoCatStat.Object, _mapper);
+                mockRepoCatColorInfo.Object, mockRepoCatStat.Object,
+                mockRepoCatOwner.Object, _mapper);
         }
 
         [Fact]
@@ -157,6 +160,38 @@ namespace Tests
             ValidationException ex = Assert.Throws<ValidationException>(
                 ()=> taskServices.GetCats(attribute, order, offset, limit));
             Assert.Equal(message, ex.Message);
+        }
+
+        [Fact]
+        public void GetCatOwnersReturnEnumerable()
+        {
+            //Arrange
+            Setup();
+            mockRepoCatOwner.Setup(task => task.GetAll_Queryable()).
+                Returns(GetTestCatOwners().AsQueryable<CatOwner>());
+            //Act
+            var result = taskServices.GetCatOwners();
+            //Assert
+            Assert.NotEmpty(result);
+            //Assert.Equal(count, result.Count);
+        }
+
+        private List<CatOwner> GetTestCatOwners()
+        {
+            return new List<CatOwner>
+            {
+                new CatOwner { Name = "Atrur", Age = 21, Cats = new List<Cat>
+                {
+                    new Cat { Name = "Tihon", Color = "red & white", TailLength = 15, WhiskersLength = 12 }
+                },
+                },
+                new CatOwner { Name = "Tom", Age = 24, Cats = new List<Cat>
+                {
+                    new Cat { Name = "Marfa", Color = "black & white", TailLength = 13, WhiskersLength = 11 },
+                new Cat { Name = "Kelly", Color = "red & white", TailLength = 26, WhiskersLength = 11 }
+                },
+                }
+            };
         }
 
         private List<Cat> GetTestCats()
