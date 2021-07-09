@@ -15,6 +15,8 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using System.IO;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System;
 
 namespace wg_forge_backend
 {
@@ -44,7 +46,10 @@ namespace wg_forge_backend
             services.AddScoped<IRepository<CatStat>, Repository<CatStat>>();
             services.AddSwaggerGen(c=>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cat API", Version = "v1", });                
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cat API", Version = "v1", });
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
         }
 

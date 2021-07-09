@@ -21,6 +21,18 @@ namespace wg_forge_backend.Controllers
             taskService = taskService_;
         }
         //если стоит атрибут ApiController и в аргументах объект класса у меня ошибка 415
+
+        /// <summary>
+        /// Get a list of all cats
+        /// </summary>
+        /// <param name="attribute">By which field to sort</param>
+        /// <param name="order">asc/desc</param>
+        /// <param name="offset">offset</param>
+        /// <param name="limit">sampling limit </param>
+        /// <returns>JSON</returns>
+        /// <response code="200">Cahange sucsess update</response>
+        /// <response code="400">One or more validation errors occurred</response>
+        /// <response code="500">Oops! Can't return list cats right now</response>
         [HttpGet("cats/")]
         public IActionResult Cats(/*QueryCatColorInfoDTO queryCatColorInfoDTO*/
             string attribute, string order, int? offset, int? limit
@@ -32,24 +44,40 @@ namespace wg_forge_backend.Controllers
                  //queryCatColorInfoDTO.Offset, queryCatColorInfoDTO.Limit*/));
             
         }
+
+        /// <summary>
+        /// Ping
+        /// </summary>
+        /// <returns>text</returns>
         [HttpGet("ping/")]
         public IActionResult Ping()
         {
             return Content(taskService.Ping());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("ex_1/")]//проборосил сюда для наглядности
         public IActionResult Exercise1()
         {
             return Json(taskService.Exercise1());
         }
+
         [HttpGet("ex_2/")]//проборосил сюда для наглядности
         public IActionResult Exercise2()
         {
             return Json(taskService.Exercise2());
         }
-        //если не стоит атрибут ApiController у меня класс не заполняется
 
+        /// <summary>
+        /// Adds a new cat 
+        /// </summary>
+        /// <param name="newCatDTO">Cat created</param>
+        /// <response code="200">Cahange sucsess update</response>
+        /// <response code="400">One or more validation errors occurred</response>
+        /// <response code="500">Oops! Can't create cat right now</response>
         [HttpPost("cat/")]
         public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {
@@ -68,6 +96,13 @@ namespace wg_forge_backend.Controllers
         //    return StatusCode(200);
         //}
 
+        /// <summary>
+        /// Change the record of the cat
+        /// </summary>
+        /// <param name="newCatDTO">New data, name cannot be changed</param>
+        /// <response code="200">Cahange sucsess update</response>
+        /// <response code="400">One or more validation errors occurred</response>
+        /// <response code="500">Oops! Can't edit cat right now</response>
         [HttpPut("cat/Edit/")]
         public IActionResult CatEdit(NewCatDTO newCatDTO)
         {
@@ -79,6 +114,13 @@ namespace wg_forge_backend.Controllers
 
         //[HttpPost("cat/Delete/")]
         //[HttpDelete("cat/Delete/")]
+        /// <summary>
+        /// Deletes the entry of the cat by name 
+        /// </summary>
+        /// <param name="catDTO">The name of the cat to be deleted</param>
+        /// <response code="200">Cat deleted</response>
+        /// <response code="500">Oops! Can't delete cat right now</response>
+        /// <example>cat/Delete?Name=Chlo</example>
         [HttpPut("cat/Delete/")]
         public IActionResult CatDelete(CatDTO catDTO)
         {
@@ -89,6 +131,10 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200);
         }
 
+        /// <summary>
+        /// Returns all owners and their cats
+        /// </summary>
+        /// <returns>json</returns>
         [HttpGet("catOwners")]
         public IActionResult CatOwners()
         {
