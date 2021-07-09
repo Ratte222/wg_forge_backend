@@ -88,5 +88,11 @@ namespace wg_forge_backend.Controllers
             //taskService.DeleteCat(new CatDTO {Name = Name });
             return StatusCode(200);
         }
+
+        [HttpGet("catOwners")]
+        public IActionResult CatOwners()
+        {
+            return Json(taskService.GetCatOwners());
+        }
     }
 }

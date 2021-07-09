@@ -19,14 +19,16 @@ namespace BLL.Services
         private IRepository<Cat> repoCat;
         private IRepository<CatColorInfo> repoCatColorInfo;
         private IRepository<CatStat> repoCatStat;
+        private IRepository<CatOwner> repoCatOwners;
         private readonly IMapper _mapper;
         public TaskServices(IRepository<Cat> repoCat, IRepository<CatColorInfo> repoCatColorInfo,
-            IRepository<CatStat> repoCatStat, IMapper mapper)
+            IRepository<CatStat> repoCatStat, IRepository<CatOwner> repoCatOwners,  IMapper mapper)
         {
             _mapper = mapper;
             this.repoCat = repoCat;
             this.repoCatColorInfo = repoCatColorInfo;
             this.repoCatStat = repoCatStat;
+            this.repoCatOwners = repoCatOwners;
         }
 
         public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)
@@ -90,6 +92,15 @@ namespace BLL.Services
                 throw new SelectException("No objects found ");                
             }
             return  _mapper.Map<List<Cat>, List<CatDTO>>(cats);            
+        }
+
+        public List<CatOwnerDTO> GetCatOwners()
+        {
+            //List<CatOwner> catOwners = (from catOwner in repoCatOwners.GetAll_Queryable()
+            //                            join cat in repoCat.GetAll_Queryable() on catOwner.Id equals cat.CatOwnerId
+            //                            select catOwner).ToList();
+            List<CatOwner> catOwners = repoCatOwners.GetAll_Queryable().Include(u=>u.Cats).ToList();
+            return _mapper.Map<List<CatOwner>, List<CatOwnerDTO>>(catOwners);
         }
 
         public List<CatColorInfoDTO> Exercise1()

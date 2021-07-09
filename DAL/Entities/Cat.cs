@@ -30,5 +30,7 @@ namespace DAL.Entities
         public int TailLength { get; set; }
         [Column("whiskers_length")]
         public int WhiskersLength { get; set; }
+
+        public int CatOwnerId { get; set; }
     }
 }

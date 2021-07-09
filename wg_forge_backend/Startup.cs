@@ -35,10 +35,13 @@ namespace wg_forge_backend
             services.AddScoped<ITaskService, TaskServices>();
             services.AddControllersWithViews();
             services.AddAutoMapper(typeof(CatProfile));
-            services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
-            services.AddScoped(typeof(IRepository<CatColorInfo>), typeof(Repository<CatColorInfo>));
-            services.AddScoped(typeof(IRepository<CatStat>), typeof(Repository<CatStat>));
-            //services.AddScoped<IRepository, Repository>();
+            //services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
+            //services.AddScoped(typeof(IRepository<CatColorInfo>), typeof(Repository<CatColorInfo>));
+            //services.AddScoped(typeof(IRepository<CatStat>), typeof(Repository<CatStat>));
+            services.AddScoped<IRepository<Cat>, Repository<Cat>>();
+            services.AddScoped<IRepository<CatOwner>, Repository<CatOwner>>();
+            services.AddScoped<IRepository<CatColorInfo>, Repository<CatColorInfo>>();
+            services.AddScoped<IRepository<CatStat>, Repository<CatStat>>();
             services.AddSwaggerGen(c=>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cat API", Version = "v1", });                

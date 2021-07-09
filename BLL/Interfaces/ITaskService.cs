@@ -14,5 +14,6 @@ namespace BLL.Interfaces
         void AddCat(NewCatDTO newCatDTO);
         void EditCat(NewCatDTO newCatDTO);
         void DeleteCat(CatDTO catDTO);
+        List<CatOwnerDTO> GetCatOwners();
     }
 }
