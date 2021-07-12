@@ -9,8 +9,8 @@ namespace DAL
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly CatContext context;
-        private DbSet<T> entities;
+        protected readonly CatContext context;
+        protected DbSet<T> entities;
         //string errorMessage = string.Empty;
 
         public Repository(CatContext context)
@@ -65,7 +65,7 @@ namespace DAL
             entities.Update(entity);
             context.SaveChanges();
         }
-        public void Delete(T entity)
+        public virtual void Delete(T entity)
         {
             if (entity == null)
             {

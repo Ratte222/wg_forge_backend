@@ -59,7 +59,7 @@ namespace BLL.Services
                     throw new BLL.Infrastructure.ValidationException(@"The ""limit"" cannot be less 1");
             }
             List<Cat> cats = null;
-            IQueryable<Cat> query = repoCat.GetAll_Queryable().OrderBy(attribute, orderBy).Skip((int)offset);
+            IQueryable<Cat> query = repoCat.GetAll_Queryable().Include(c => c.CatOwners).OrderBy(attribute, orderBy).Skip((int)offset);
 
             //if (order == "desc")
             //{
@@ -132,6 +132,8 @@ namespace BLL.Services
 
         public void DeleteCat(CatDTO catDTO)
         {
+            //Cat cat = repoCat.GetAll_Queryable().FirstOrDefault();
+            //repoCat.Delete(cat);
             repoCat.Delete(_mapper.Map<CatDTO, Cat>(catDTO));
         }
 

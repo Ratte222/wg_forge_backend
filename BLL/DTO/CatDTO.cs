@@ -31,5 +31,7 @@ namespace BLL.DTO
         /// </summary>
         /// <example>10</example>
         public int WhiskersLength { get; set; }
+
+        //public List<CatOwnerDTO> CatOwnersDTO { get; set; } = new List<CatOwnerDTO>();
     }
 }

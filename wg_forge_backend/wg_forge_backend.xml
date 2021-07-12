@@ -13,7 +13,6 @@
             <param name="offset">offset</param>
             <param name="limit">sampling limit </param>
             <returns>JSON</returns>
-            <response code="200">Cahange sucsess update</response>
             <response code="400">One or more validation errors occurred</response>
             <response code="500">Oops! Can't return list cats right now</response>
         </member>
@@ -34,7 +33,7 @@
             Adds a new cat 
             </summary>
             <param name="newCatDTO">Cat created</param>
-            <response code="200">Cahange sucsess update</response>
+            <response code="200">Successfully added a new cat</response>
             <response code="400">One or more validation errors occurred</response>
             <response code="500">Oops! Can't create cat right now</response>
         </member>
@@ -53,6 +52,7 @@
             </summary>
             <param name="catDTO">The name of the cat to be deleted</param>
             <response code="200">Cat deleted</response>
+            <response code="400">One or more validation errors occurred</response>
             <response code="500">Oops! Can't delete cat right now</response>
             <example>cat/Delete?Name=Chlo</example>
         </member>
@@ -61,6 +61,7 @@
             Returns all owners and their cats
             </summary>
             <returns>json</returns>
+            <response code="500">Oops! Can't return list cats right now</response>
         </member>
     </members>
 </doc>

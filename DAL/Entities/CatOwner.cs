@@ -10,6 +10,7 @@ namespace DAL.Entities
         public string Name { get; set; }
         public int Age { get; set; }
 
-        public List<Cat> Cats { get; set; }
+
+        public List<Cat> Cats { get; set; } = new List<Cat>();
     }
 }

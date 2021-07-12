@@ -7,7 +7,6 @@ namespace DAL.Entities
 {
 
 
-    [Table("cats")]
     public class Cat
     {
         [NotMapped]
@@ -20,17 +19,18 @@ namespace DAL.Entities
             "red & white",
             "red & black & white"
         };
-        [Key, Column("name")]
+        [Key/*, Column("name")*/]
         public string Name { get; set; }
         //не понял как сдеать перечесления сторок чтоб использовать атрибут "EnumDataType" 
         //так что сделал свой атрибут
-        [Column("color")]
+        //[Column("color")]
         public string Color { get; set; }
-        [Column("tail_length")]
+        //[Column("tail_length")]
         public int TailLength { get; set; }
-        [Column("whiskers_length")]
+        //[Column("whiskers_length")]
         public int WhiskersLength { get; set; }
 
-        public int CatOwnerId { get; set; }
+        //public int? CatOwnerId { get; set; }//внешний ключ
+        public List<CatOwner> CatOwners { get; set; } = new List<CatOwner>();//навигационное свойство
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using BLL.ValidationClass;
 
 namespace BLL.DTO
@@ -29,5 +30,10 @@ namespace BLL.DTO
         /// <example>10</example>
         [Required, Range(0, 20, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int WhiskersLength { get; set; }
+
+        /// <summary>
+        /// Cat owners list
+        /// </summary>
+        //public List<CatOwnerDTO> CatOwnersDTO { get; set; } = new List<CatOwnerDTO>();
     }
 }

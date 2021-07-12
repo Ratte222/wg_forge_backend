@@ -30,18 +30,21 @@ namespace wg_forge_backend.Controllers
         /// <param name="offset">offset</param>
         /// <param name="limit">sampling limit </param>
         /// <returns>JSON</returns>
-        /// <response code="200">Cahange sucsess update</response>
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't return list cats right now</response>
         [HttpGet("cats/")]
+        [ProducesResponseType(typeof(List<CatDTO>), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        [ProducesResponseType(typeof(string), 500)]
         public IActionResult Cats(/*QueryCatColorInfoDTO queryCatColorInfoDTO*/
             string attribute, string order, int? offset, int? limit
             //string? attribute = "color", string? order
             /*= "asc", int? offset = 5, int? limit = 2*/)
         {
-            return Json(taskService.GetCats(attribute, order, offset, limit
+            List<CatDTO> catDTO = taskService.GetCats(attribute, order, offset, limit
                  /*queryCatColorInfoDTO.Attribute, queryCatColorInfoDTO.Order,
-                 //queryCatColorInfoDTO.Offset, queryCatColorInfoDTO.Limit*/));
+                 //queryCatColorInfoDTO.Offset, queryCatColorInfoDTO.Limit*/);
+            return Json(catDTO);
             
         }
 
@@ -75,16 +78,19 @@ namespace wg_forge_backend.Controllers
         /// Adds a new cat 
         /// </summary>
         /// <param name="newCatDTO">Cat created</param>
-        /// <response code="200">Cahange sucsess update</response>
+        /// <response code="200">Successfully added a new cat</response>
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't create cat right now</response>
         [HttpPost("cat/")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+        [ProducesResponseType(typeof(string), 500)]
         public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
             taskService.AddCat(newCatDTO);
-            return StatusCode(200);
+            return StatusCode(200, "Successfully added a new cat");
         }
 
         //[HttpPost("cat/Edit/")]
@@ -104,12 +110,15 @@ namespace wg_forge_backend.Controllers
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't edit cat right now</response>
         [HttpPut("cat/Edit/")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+        [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatEdit(NewCatDTO newCatDTO)
         {
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
             taskService.EditCat(newCatDTO);
-            return StatusCode(200);
+            return StatusCode(200, "Cahange sucsess update");
         }
 
         //[HttpPost("cat/Delete/")]
@@ -119,23 +128,30 @@ namespace wg_forge_backend.Controllers
         /// </summary>
         /// <param name="catDTO">The name of the cat to be deleted</param>
         /// <response code="200">Cat deleted</response>
+        /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't delete cat right now</response>
         /// <example>cat/Delete?Name=Chlo</example>
         [HttpPut("cat/Delete/")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+        [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatDelete(CatDTO catDTO)
         {
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
             taskService.DeleteCat(catDTO);
             //taskService.DeleteCat(new CatDTO {Name = Name });
-            return StatusCode(200);
+            return StatusCode(200, "Cat deleted");
         }
 
         /// <summary>
         /// Returns all owners and their cats
         /// </summary>
         /// <returns>json</returns>
+        /// <response code="500">Oops! Can't return list cats right now</response>
         [HttpGet("catOwners")]
+        [ProducesResponseType(typeof(List<CatOwnerDTO>), 200)]
+        [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatOwners()
         {
             return Json(taskService.GetCatOwners());
