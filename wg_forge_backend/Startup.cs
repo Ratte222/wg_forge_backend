@@ -17,6 +17,7 @@ using System.IO;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System;
+using Serilog;
 
 namespace wg_forge_backend
 {
@@ -73,7 +74,9 @@ namespace wg_forge_backend
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseSerilogRequestLogging();//в зависимотсти от того, где находиться это объявление будут логгироваться разные
+            //части обработки запроса. Например если написать логгер выше UseStaticFiles он будет логгировать скачивание
+            //статических файлов
             app.UseRouting();
 
             app.UseAuthorization();

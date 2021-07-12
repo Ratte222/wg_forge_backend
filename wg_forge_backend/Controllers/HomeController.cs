@@ -20,6 +20,7 @@ namespace wg_forge_backend.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            _logger.LogInformation("Index");
             return View();
         }
         [HttpGet]

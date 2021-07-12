@@ -63,12 +63,14 @@ namespace wg_forge_backend.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("ex_1/")]//проборосил сюда для наглядности
+        [ProducesResponseType(typeof(List<CatColorInfoDTO>), 200)]
         public IActionResult Exercise1()
         {
             return Json(taskService.Exercise1());
         }
 
         [HttpGet("ex_2/")]//проборосил сюда для наглядности
+        [ProducesResponseType(typeof(List<CatStatDTO>), 200)]
         public IActionResult Exercise2()
         {
             return Json(taskService.Exercise2());

@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace DAL.EF
 {
@@ -24,6 +25,7 @@ namespace DAL.EF
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             //optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;");
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
