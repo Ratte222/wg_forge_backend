@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Serilog.Events;
+using System.IO;
 
 namespace wg_forge_backend
 {
@@ -20,7 +21,12 @@ namespace wg_forge_backend
             .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
             .Enrich.FromLogContext()
             .WriteTo.Console()
-            .WriteTo.File(new RenderedCompactJsonFormatter(), "/log.ndjson")
+            //.WriteTo.File(new RenderedCompactJsonFormatter(), "/log.ndjson")
+            .WriteTo.File(new RenderedCompactJsonFormatter(), 
+              path: Path.Combine(Environment.CurrentDirectory, @"logs", @"skilliam.ndjson"),
+              rollingInterval: RollingInterval.Day,
+              rollOnFileSizeLimit: true,
+              fileSizeLimitBytes: 123456)
             .CreateLogger();
             try
             {
