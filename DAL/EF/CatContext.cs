@@ -1,10 +1,9 @@
 ﻿using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace DAL.EF
 {
@@ -15,21 +14,36 @@ namespace DAL.EF
         public DbSet<CatStat> CatStats { get; set; }
         public DbSet<CatOwner> CatOwners { get; set; }
 
+        public CatContext() { }
+
         public CatContext(DbContextOptions<CatContext> options):base(options)
         {
             //Database.EnsureDeleted();
             //Database.EnsureCreated();
-            StoreDbInitializer.Initialize(this);
+            //StoreDbInitializer.Initialize(this);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;");
-            
+            if(!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;");               
+                
+                //var builder = new ConfigurationBuilder();
+                //// установка пути к текущему каталогу
+                //builder.SetBasePath(Directory.GetCurrentDirectory());
+                //// получаем конфигурацию из файла appsettings.json
+                //builder.AddJsonFile("appsettings.json");
+                //// создаем конфигурацию
+                //var config = builder.Build();
+                //// получаем строку подключения
+                //optionsBuilder.UseSqlServer(config.GetConnectionString("DefaultConnection"));
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<CatColorInfo>().HasKey(u => u.Color)/*.HasAlternateKey(u => u.Color)*/;
             //modelBuilder.Entity<CatStat>().HasNoKey();
         }
