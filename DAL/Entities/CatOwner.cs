@@ -12,5 +12,6 @@ namespace DAL.Entities
 
 
         public List<Cat> Cats { get; set; } = new List<Cat>();
+        public List<CatsAndOwners> CatsAndOwners { get; set; } = new List<CatsAndOwners>();
     }
 }

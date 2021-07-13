@@ -5,12 +5,13 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Serilog.Events;
 using System.IO;
-
+using Microsoft.Extensions.DependencyInjection;
+using DAL.EF;
 namespace wg_forge_backend
 {
     public class Program
@@ -30,7 +31,13 @@ namespace wg_forge_backend
             .CreateLogger();
             try
             {
-                CreateHostBuilder(args).Build().Run();
+                var host = CreateHostBuilder(args).Build();
+                //Microsoft suggests doing so  https://docs.microsoft.com/ru-ru/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli
+                var scope = host.Services.CreateScope();                
+                var db = scope.ServiceProvider.GetRequiredService<CatContext>();
+                db.Database.Migrate();
+                scope.Dispose();
+                host.Run();
             }
             catch (Exception ex)
             {

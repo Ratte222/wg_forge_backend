@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using System.IO;
+using System;
 
 namespace DAL.EF
 {
@@ -44,6 +44,24 @@ namespace DAL.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<CatOwner>()
+                .HasMany(co => co.Cats)
+                .WithMany(c => c.CatOwners)
+                .UsingEntity<CatsAndOwners>(
+                    j => j
+                    .HasOne(i => i.Cat)
+                    .WithMany(i => i.CatsAndOwners)
+                    .HasForeignKey(i => i.CatsName),
+                    j => j
+                    .HasOne(co => co.CatOwner)
+                    .WithMany(cao => cao.CatsAndOwners)
+                    .HasForeignKey(i => i.CatOwnersId),
+                    j =>
+                    {
+                        j.HasKey(k => new { k.CatOwnersId, k.CatsName });
+                        j.ToTable("CatsAndOwners");
+                    }
+                );
             modelBuilder.Entity<CatColorInfo>().HasKey(u => u.Color)/*.HasAlternateKey(u => u.Color)*/;
             //modelBuilder.Entity<CatStat>().HasNoKey();
         }

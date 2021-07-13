@@ -32,5 +32,6 @@ namespace DAL.Entities
 
         //public int? CatOwnerId { get; set; }//внешний ключ
         public List<CatOwner> CatOwners { get; set; } = new List<CatOwner>();//навигационное свойство
+        public List<CatsAndOwners> CatsAndOwners { get; set; } = new List<CatsAndOwners>();
     }
 }
