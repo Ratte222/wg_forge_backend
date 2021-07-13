@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using BLL.DTO;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace wg_forge_backend.Controllers
 {
@@ -32,6 +33,7 @@ namespace wg_forge_backend.Controllers
         /// <returns>JSON</returns>
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't return list cats right now</response>
+        [Authorize]
         [HttpGet("cats/")]
         [ProducesResponseType(typeof(List<CatDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]

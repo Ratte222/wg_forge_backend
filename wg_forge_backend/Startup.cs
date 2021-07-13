@@ -12,12 +12,14 @@ using DAL;
 using BLL.Services;
 using BLL.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using AutoMapper;
+using wg_forge_backend.JWT;
 using System.IO;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System;
 using Serilog;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace wg_forge_backend
 {
@@ -52,6 +54,31 @@ namespace wg_forge_backend
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.RequireHttpsMetadata = true;//if false - do not use SSl
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            // укзывает, будет ли валидироваться издатель при валидации токена
+                            ValidateIssuer = true,
+                            // строка, представляющая издателя
+                            ValidIssuer = AuthOptions.ISSUER,
+
+                            // будет ли валидироваться потребитель токена
+                            ValidateAudience = true,
+                            // установка потребителя токена
+                            ValidAudience = AuthOptions.AUDIENCE,
+                            // будет ли валидироваться время существования
+                            ValidateLifetime = true,
+
+                            // установка ключа безопасности
+                            IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                            // валидация ключа безопасности
+                            ValidateIssuerSigningKey = true,
+                        };
+                    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,7 +105,7 @@ namespace wg_forge_backend
             //части обработки запроса. Например если написать логгер выше UseStaticFiles он будет логгировать скачивание
             //статических файлов
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<ExeptionMeddleware>();
             app.UseEndpoints(endpoints =>
