@@ -12,7 +12,6 @@ using DAL;
 using BLL.Services;
 using BLL.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using wg_forge_backend.JWT;
 using System.IO;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -20,6 +19,7 @@ using System;
 using Serilog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using wg_forge_backend.Helpers;
 
 namespace wg_forge_backend
 {
@@ -56,6 +56,13 @@ namespace wg_forge_backend
                 c.IncludeXmlComments(xmlPath);
             });
 
+            // configure strongly typed settings objects
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            // configure jwt authentication
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
@@ -65,21 +72,24 @@ namespace wg_forge_backend
                             // укзывает, будет ли валидироваться издатель при валидации токена
                             ValidateIssuer = true,
                             // строка, представляющая издателя
-                            ValidIssuer = AuthOptions.ISSUER,
+                            ValidIssuer = appSettings.Issuer,
 
                             // будет ли валидироваться потребитель токена
                             ValidateAudience = true,
                             // установка потребителя токена
-                            ValidAudience = AuthOptions.AUDIENCE,
+                            ValidAudience = appSettings.Audience,
                             // будет ли валидироваться время существования
                             ValidateLifetime = true,
 
                             // установка ключа безопасности
-                            IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                            //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                            IssuerSigningKey = new SymmetricSecurityKey(key),
                             // валидация ключа безопасности
                             ValidateIssuerSigningKey = true,
                         };
                     });
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

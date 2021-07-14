@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using wg_forge_backend.JWT;
 using BLL.Interfaces;
 using BLL.DTO;
 using BLL.Infrastructure;
 using wg_forge_backend.Models;
+using Microsoft.Extensions.Options;
+using wg_forge_backend.Helpers;
 
 //статьи с реализацией авторизвции JWT https://fuse8.ru/articles/using-asp-net-core-identity-and-jwt,
 //https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api,
@@ -22,10 +23,11 @@ namespace wg_forge_backend.Controllers
     public class AccountController:Controller
     {
         private IAccount _account;
-
-        public AccountController(IAccount account)
+        private AppSettings _appSettings;
+        public AccountController(IAccount account, IOptions<AppSettings> appSettings)
         {
             _account = account;
+            _appSettings = appSettings.Value;
         }
 
         /// <summary>
@@ -49,12 +51,14 @@ namespace wg_forge_backend.Controllers
             var now = DateTime.UtcNow;
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    audience: AuthOptions.AUDIENCE,
+                    issuer: _appSettings.Issuer,
+                    audience: _appSettings.Audience,
                     notBefore: now,
                     claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                    expires: now.Add(TimeSpan.FromMinutes(_appSettings.Lifetime)),
+                    signingCredentials: new SigningCredentials(
+                        new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(_appSettings.Secret)), 
+                        SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             var response = new LoginResponseModel()
