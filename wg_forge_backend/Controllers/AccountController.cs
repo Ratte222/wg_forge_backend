@@ -72,7 +72,7 @@ namespace wg_forge_backend.Controllers
         /// </summary>
         /// <param name="registerModelDTO"></param>
         /// <returns></returns>
-        [HttpPost("/registration")]
+        [HttpPost("/owner/registration")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
         //у меня для этого запроса с одним и тем же кодом ответа может прийтиразные тела ответа

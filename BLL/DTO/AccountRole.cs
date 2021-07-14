@@ -4,10 +4,17 @@ using System.Text;
 
 namespace BLL.DTO
 {
-    public enum ACCOUNT_ROLE
+    //public enum ACCOUNT_ROLE
+    //{
+    //    Admin,
+    //    User,
+    //    Guest
+    //}
+
+    public class AccountRole
     {
-        Admin,
-        User,
-        Guest
+        public const string Admin = "Admin"; 
+        public const string CatOwner = "CatOwner"; 
+        public const string User = "User"; 
     }
 }

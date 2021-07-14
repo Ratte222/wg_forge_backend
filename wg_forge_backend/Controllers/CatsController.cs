@@ -33,7 +33,7 @@ namespace wg_forge_backend.Controllers
         /// <returns>JSON</returns>
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't return list cats right now</response>
-        [Authorize]
+        [Authorize(Roles = AccountRole.Admin)]
         [HttpGet("cats/")]
         [ProducesResponseType(typeof(List<CatDTO>), 200)]
         [ProducesResponseType(typeof(string), 400)]
@@ -85,12 +85,14 @@ namespace wg_forge_backend.Controllers
         /// <response code="200">Successfully added a new cat</response>
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't create cat right now</response>
+        [Authorize(Roles = AccountRole.CatOwner)]
         [HttpPost("cat/")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult AddNewCat(NewCatDTO newCatDTO)
         {
+            string temp = this.User.Identity.Name;
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
             _taskService.AddCat(newCatDTO);
@@ -113,6 +115,7 @@ namespace wg_forge_backend.Controllers
         /// <response code="200">Cahange sucsess update</response>
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't edit cat right now</response>
+        [Authorize(Roles = AccountRole.CatOwner)]
         [HttpPut("cat/Edit/")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
@@ -135,6 +138,7 @@ namespace wg_forge_backend.Controllers
         /// <response code="400">One or more validation errors occurred</response>
         /// <response code="500">Oops! Can't delete cat right now</response>
         /// <example>cat/Delete?Name=Chlo</example>
+        [Authorize(Roles = AccountRole.CatOwner)]
         [HttpPut("cat/Delete/")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
@@ -153,6 +157,7 @@ namespace wg_forge_backend.Controllers
         /// </summary>
         /// <returns>json</returns>
         /// <response code="500">Oops! Can't return list cats right now</response>
+        [Authorize(Roles = AccountRole.Admin)]
         [HttpGet("catOwners")]
         [ProducesResponseType(typeof(List<CatOwnerDTO>), 200)]
         [ProducesResponseType(typeof(string), 500)]

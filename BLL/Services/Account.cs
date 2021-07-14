@@ -34,7 +34,7 @@ namespace BLL.Services
                 throw new ValidationException("This login already exists ");
             CatOwner catOwner = _mapper.Map<RegisterModelDTO, CatOwner>(registerModelDTO);
             catOwner.Password = Crypt.GetHashSHA512(catOwner.Password);
-            catOwner.Role = ACCOUNT_ROLE.User.ToString();
+            catOwner.Role = AccountRole.CatOwner;
             _repoCatOwners.Create(catOwner);
         }
     }
