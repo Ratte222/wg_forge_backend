@@ -14,6 +14,7 @@ using wg_forge_backend.Helpers;
 
 //статьи с реализацией авторизвции JWT https://fuse8.ru/articles/using-asp-net-core-identity-and-jwt,
 //https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api,
+//https://jasonwatmore.com/post/2020/05/25/aspnet-core-3-api-jwt-authentication-with-refresh-tokens,
 //https://metanit.com/sharp/aspnet5/23.7.php
 namespace wg_forge_backend.Controllers
 {
@@ -22,9 +23,9 @@ namespace wg_forge_backend.Controllers
     [ApiController]
     public class AccountController:Controller
     {
-        private IAccount _account;
+        private IAccountService _account;
         private AppSettings _appSettings;
-        public AccountController(IAccount account, IOptions<AppSettings> appSettings)
+        public AccountController(IAccountService account, IOptions<AppSettings> appSettings)
         {
             _account = account;
             _appSettings = appSettings.Value;

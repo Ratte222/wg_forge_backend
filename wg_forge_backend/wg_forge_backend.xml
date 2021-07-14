@@ -18,7 +18,7 @@
             <param name="registerModelDTO"></param>
             <returns></returns>
         </member>
-        <member name="M:wg_forge_backend.Controllers.CatsController.Cats(System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+        <member name="M:wg_forge_backend.Controllers.CatsController.AllCats(System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Get a list of all cats
             </summary>
@@ -28,6 +28,15 @@
             <param name="limit">sampling limit </param>
             <returns>JSON</returns>
             <response code="400">One or more validation errors occurred</response>
+            <response code="500">Oops! Can't return list cats right now</response>
+        </member>
+        <member name="M:wg_forge_backend.Controllers.CatsController.Cats">
+            <summary>
+            Get a list of all cats
+            </summary>
+            <returns>JSON</returns>
+            <response code="400">One or more validation errors occurred</response>
+            <response code="401">Unauthorized</response>
             <response code="500">Oops! Can't return list cats right now</response>
         </member>
         <member name="M:wg_forge_backend.Controllers.CatsController.Ping">

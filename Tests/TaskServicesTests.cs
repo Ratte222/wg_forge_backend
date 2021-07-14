@@ -133,7 +133,7 @@ namespace Tests
             mockRepoCat.Setup(task => task.GetAll_Queryable()).
                 Returns(GetTestCats().AsQueryable<Cat>());
             //Act
-            var result = taskServices.GetCats(attribute, order, offset, limit);
+            var result = taskServices.GetAllCats(attribute, order, offset, limit);
             //Assert
             Assert.NotEmpty(result);
             Assert.Equal(count, result.Count);
@@ -158,7 +158,7 @@ namespace Tests
 
             //Assert
             ValidationException ex = Assert.Throws<ValidationException>(
-                ()=> taskServices.GetCats(attribute, order, offset, limit));
+                ()=> taskServices.GetAllCats(attribute, order, offset, limit));
             Assert.Equal(message, ex.Message);
         }
 

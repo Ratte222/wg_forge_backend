@@ -38,7 +38,7 @@ namespace wg_forge_backend
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
             services.AddScoped<ITaskService, TaskServices>();
-            services.AddScoped<IAccount, Account>();
+            services.AddScoped<IAccountService, AccountService>();
             services.AddControllersWithViews();
             services.AddAutoMapper(typeof(CatProfile));
             //services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
@@ -64,30 +64,30 @@ namespace wg_forge_backend
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
-                    {
-                        options.RequireHttpsMetadata = true;//if false - do not use SSl
-                        options.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            // укзывает, будет ли валидироваться издатель при валидации токена
-                            ValidateIssuer = true,
-                            // строка, представляющая издателя
-                            ValidIssuer = appSettings.Issuer,
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;//if false - do not use SSl
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // укзывает, будет ли валидироваться издатель при валидации токена
+                    ValidateIssuer = true,
+                    // строка, представляющая издателя
+                    ValidIssuer = appSettings.Issuer,
 
-                            // будет ли валидироваться потребитель токена
-                            ValidateAudience = true,
-                            // установка потребителя токена
-                            ValidAudience = appSettings.Audience,
-                            // будет ли валидироваться время существования
-                            ValidateLifetime = true,
+                    // будет ли валидироваться потребитель токена
+                    ValidateAudience = true,
+                    // установка потребителя токена
+                    ValidAudience = appSettings.Audience,
+                    // будет ли валидироваться время существования
+                    ValidateLifetime = true,
 
-                            // установка ключа безопасности
-                            //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                            IssuerSigningKey = new SymmetricSecurityKey(key),
-                            // валидация ключа безопасности
-                            ValidateIssuerSigningKey = true,
-                        };
-                    });
+                    // установка ключа безопасности
+                    //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    // валидация ключа безопасности
+                    ValidateIssuerSigningKey = true,
+                };
+            });
 
             
         }

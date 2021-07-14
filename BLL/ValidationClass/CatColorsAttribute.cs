@@ -13,7 +13,7 @@ namespace BLL.ValidationClass
 
             if (!string.IsNullOrEmpty(inputValue))
             {
-                isValid = Cat.CatColor.Any(i => i == inputValue);
+                isValid = Cat.CatColor.Any(i => i == inputValue.ToLower());
             }
 
             return isValid;

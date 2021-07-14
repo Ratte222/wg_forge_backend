@@ -4,7 +4,7 @@ using System.Text;
 using BLL.DTO;
 namespace BLL.Interfaces
 {
-    public interface IAccount
+    public interface IAccountService
     {
         AccountModelDTO Authenticate(LoginModelDTO loginModelDTO);
         void Registration(RegisterModelDTO registerModelDTO);

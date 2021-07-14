@@ -43,7 +43,7 @@ namespace Tests
         public void GetCatsReturnJson()
         {
             //Arrange
-            mockITaskService.Setup(task => task.GetCats(null, null, null, null)).
+            mockITaskService.Setup(task => task.GetAllCats(null, null, null, null)).
                 Returns(GetTestCats());
             var controller = new CatsController(mockITaskService.Object);
             //Act

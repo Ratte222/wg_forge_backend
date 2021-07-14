@@ -31,7 +31,16 @@ namespace BLL.Services
             this._repoCatOwners = repoCatOwners;
         }
 
-        public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)
+        public List<CatDTO> GetCats(string OwnerLogin)
+        {
+            CatOwner catOwner = _repoCatOwners.GetAll_Queryable().Include(i => i.Cats)
+                .Single(i => i.Login.ToLower() == OwnerLogin.ToLower());
+            if (catOwner == null)
+                throw new SelectException("Сould not find the owner. Please log in again.");
+            return _mapper.Map<List<Cat>, List<CatDTO>>(catOwner.Cats);
+        }
+
+        public List<CatDTO> GetAllCats(string attribute, string order, int? offset, int? limit)
         {
             if (attribute == null)
                 attribute = "Name";
@@ -60,29 +69,6 @@ namespace BLL.Services
             }
             List<Cat> cats = null;
             IQueryable<Cat> query = _repoCat.GetAll_Queryable().Include(c => c.CatOwners).OrderBy(attribute, orderBy).Skip((int)offset);
-
-            //if (order == "desc")
-            //{
-            //    if (attribute == "name")
-            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Name).Skip((int)offset);
-            //    else if (attribute == "color")
-            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.Color).Skip((int)offset);
-            //    else if (attribute == "tail_length")
-            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.TailLength).Skip((int)offset);
-            //    else if (attribute == "whiskers_length")
-            //        query = repoCat.GetAll_Queryable().OrderByDescending(i => i.WhiskersLength).Skip((int)offset);                
-            //}
-            //else
-            //{
-            //    if (attribute == "name")
-            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.Name).Skip((int)offset);
-            //    else if (attribute == "color")
-            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.Color).Skip((int)offset);
-            //    else if (attribute == "tail_length")
-            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.TailLength).Skip((int)offset);
-            //    else if (attribute == "whiskers_length")
-            //        query = repoCat.GetAll_Queryable().OrderBy(i => i.WhiskersLength).Skip((int)offset);
-            //}
             if(limit!=null)
                 cats = query.Take((int)limit).ToList();
             else
@@ -115,25 +101,36 @@ namespace BLL.Services
                 _repoCatStat.GetAll_Enumerable().Single());//тут делаю выборку для проверки привильности записанных данных
         }
 
-        public void AddCat(NewCatDTO newCatDTO)
-        {   
+        public void AddCat(NewCatDTO newCatDTO, string OwnerLogin)
+        {
+            CatOwner catOwner = _repoCatOwners.GetAll_Queryable().Single(i => i.Login.ToLower() == OwnerLogin.ToLower());
+            if (catOwner == null)
+                throw new SelectException("Сould not find the owner. Please log in again.");
             if(_repoCat.GetAll_Queryable().Any(i=>i.Name.ToLower() == newCatDTO.Name.ToLower()))
                 throw new BLL.Infrastructure.ValidationException("A cat with the same name already exists");
-            _repoCat.Create(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
-            
+            Cat cat = _mapper.Map<NewCatDTO, Cat>(newCatDTO);
+            _repoCat.Create(cat);
+            catOwner.Cats.Add(cat);
+            _repoCatOwners.Update(catOwner);
         }
 
-        public void EditCat(NewCatDTO catDTO)
-        {
+        public void EditCat(NewCatDTO catDTO, string OwnerLogin)
+        {            
             if (!_repoCat.GetAll_Queryable().Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
-                throw new ValidationException("A cat with the same name already not exists");
+                throw new ValidationException("A cat with the same name already not exists");            
+            if (!_repoCatOwners.GetAll_Queryable().AsNoTracking().Include(i => i.Cats)
+                .Single(i => i.Login.ToLower() == OwnerLogin.ToLower())
+                .Cats.Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
+                throw new ValidationException("You are not the owner of this cat");
             _repoCat.Update(_mapper.Map<NewCatDTO, Cat>(catDTO));
         }
 
-        public void DeleteCat(CatDTO catDTO)
+        public void DeleteCat(CatDTO catDTO, string OwnerLogin)
         {
-            //Cat cat = repoCat.GetAll_Queryable().FirstOrDefault();
-            //repoCat.Delete(cat);
+            if (!_repoCatOwners.GetAll_Queryable().AsNoTracking().Include(i => i.Cats)
+                .Single(i => i.Login.ToLower() == OwnerLogin.ToLower())
+                .Cats.Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
+                throw new ValidationException("You are not the owner of this cat");
             _repoCat.Delete(_mapper.Map<CatDTO, Cat>(catDTO));
         }
 

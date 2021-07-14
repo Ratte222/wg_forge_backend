@@ -9,12 +9,12 @@ using AutoMapper;
 using BLL.Infrastructure;
 namespace BLL.Services
 {
-    public class Account:IAccount
+    public class AccountService:IAccountService
     {
         private IRepository<CatOwner> _repoCatOwners;
         private readonly IMapper _mapper;
 
-        public Account(IRepository<CatOwner> repoCatOwners, IMapper mapper)
+        public AccountService(IRepository<CatOwner> repoCatOwners, IMapper mapper)
         {
             _repoCatOwners = repoCatOwners;
             _mapper = mapper;
