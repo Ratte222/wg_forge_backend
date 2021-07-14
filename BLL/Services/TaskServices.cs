@@ -16,19 +16,19 @@ namespace BLL.Services
     public class TaskServices:ITaskService
     {
         //CatContext Database { get; set; }
-        private IRepository<Cat> repoCat;
-        private IRepository<CatColorInfo> repoCatColorInfo;
-        private IRepository<CatStat> repoCatStat;
-        private IRepository<CatOwner> repoCatOwners;
+        private IRepository<Cat> _repoCat;
+        private IRepository<CatColorInfo> _repoCatColorInfo;
+        private IRepository<CatStat> _repoCatStat;
+        private IRepository<CatOwner> _repoCatOwners;
         private readonly IMapper _mapper;
         public TaskServices(IRepository<Cat> repoCat, IRepository<CatColorInfo> repoCatColorInfo,
             IRepository<CatStat> repoCatStat, IRepository<CatOwner> repoCatOwners,  IMapper mapper)
         {
             _mapper = mapper;
-            this.repoCat = repoCat;
-            this.repoCatColorInfo = repoCatColorInfo;
-            this.repoCatStat = repoCatStat;
-            this.repoCatOwners = repoCatOwners;
+            this._repoCat = repoCat;
+            this._repoCatColorInfo = repoCatColorInfo;
+            this._repoCatStat = repoCatStat;
+            this._repoCatOwners = repoCatOwners;
         }
 
         public List<CatDTO> GetCats(string attribute, string order, int? offset, int? limit)
@@ -47,7 +47,7 @@ namespace BLL.Services
                 orderBy = true;
             if (offset != null)
             {
-                if (offset >= repoCat.GetAll_Queryable().Count())
+                if (offset >= _repoCat.GetAll_Queryable().Count())
                     throw new BLL.Infrastructure.ValidationException(@"The ""offset"" >= cats count");
                 else if (offset < 0)
                     throw new BLL.Infrastructure.ValidationException(@"The ""offset"" cannot be less 0");
@@ -59,7 +59,7 @@ namespace BLL.Services
                     throw new BLL.Infrastructure.ValidationException(@"The ""limit"" cannot be less 1");
             }
             List<Cat> cats = null;
-            IQueryable<Cat> query = repoCat.GetAll_Queryable().Include(c => c.CatOwners).OrderBy(attribute, orderBy).Skip((int)offset);
+            IQueryable<Cat> query = _repoCat.GetAll_Queryable().Include(c => c.CatOwners).OrderBy(attribute, orderBy).Skip((int)offset);
 
             //if (order == "desc")
             //{
@@ -96,45 +96,45 @@ namespace BLL.Services
 
         public List<CatOwnerDTO> GetCatOwners()
         {
-            List<CatOwner> catOwners = repoCatOwners.GetAll_Queryable()
+            List<CatOwner> catOwners = _repoCatOwners.GetAll_Queryable()
                 .Include(u=>u.Cats).OrderBy(i => i.Name).ToList();
             return _mapper.Map<List<CatOwner>, List<CatOwnerDTO>>(catOwners);
         }
 
         public List<CatColorInfoDTO> Exercise1()
         {
-            new Exercises().ProcessingExercise1(repoCat, repoCatColorInfo);
+            new Exercises().ProcessingExercise1(_repoCat, _repoCatColorInfo);
             return _mapper.Map<List<CatColorInfo>, List<CatColorInfoDTO>>(
-                repoCatColorInfo.GetAll_Enumerable().ToList());//тут делаю выборку для проверки привильности записанных данных
+                _repoCatColorInfo.GetAll_Enumerable().ToList());//тут делаю выборку для проверки привильности записанных данных
         }
 
         public CatStatDTO Exercise2()
         {
-            new Exercises().ProcessingExercise2(repoCat, repoCatStat);
+            new Exercises().ProcessingExercise2(_repoCat, _repoCatStat);
             return _mapper.Map<CatStat, CatStatDTO>(
-                repoCatStat.GetAll_Enumerable().Single());//тут делаю выборку для проверки привильности записанных данных
+                _repoCatStat.GetAll_Enumerable().Single());//тут делаю выборку для проверки привильности записанных данных
         }
 
         public void AddCat(NewCatDTO newCatDTO)
         {   
-            if(repoCat.GetAll_Queryable().Any(i=>i.Name.ToLower() == newCatDTO.Name.ToLower()))
+            if(_repoCat.GetAll_Queryable().Any(i=>i.Name.ToLower() == newCatDTO.Name.ToLower()))
                 throw new BLL.Infrastructure.ValidationException("A cat with the same name already exists");
-            repoCat.Create(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
+            _repoCat.Create(_mapper.Map<NewCatDTO, Cat>(newCatDTO));
             
         }
 
         public void EditCat(NewCatDTO catDTO)
         {
-            if (!repoCat.GetAll_Queryable().Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
+            if (!_repoCat.GetAll_Queryable().Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
                 throw new ValidationException("A cat with the same name already not exists");
-            repoCat.Update(_mapper.Map<NewCatDTO, Cat>(catDTO));
+            _repoCat.Update(_mapper.Map<NewCatDTO, Cat>(catDTO));
         }
 
         public void DeleteCat(CatDTO catDTO)
         {
             //Cat cat = repoCat.GetAll_Queryable().FirstOrDefault();
             //repoCat.Delete(cat);
-            repoCat.Delete(_mapper.Map<CatDTO, Cat>(catDTO));
+            _repoCat.Delete(_mapper.Map<CatDTO, Cat>(catDTO));
         }
 
         public string Ping()

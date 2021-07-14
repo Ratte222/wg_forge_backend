@@ -16,10 +16,10 @@ namespace wg_forge_backend.Controllers
     [ApiController]
     public class CatsController : Controller
     {
-        private ITaskService taskService;
+        private ITaskService _taskService;
         public CatsController(ITaskService taskService_)
         {
-            taskService = taskService_;
+            _taskService = taskService_;
         }
         //если стоит атрибут ApiController и в аргументах объект класса у меня ошибка 415
 
@@ -43,7 +43,7 @@ namespace wg_forge_backend.Controllers
             //string? attribute = "color", string? order
             /*= "asc", int? offset = 5, int? limit = 2*/)
         {
-            List<CatDTO> catDTO = taskService.GetCats(attribute, order, offset, limit
+            List<CatDTO> catDTO = _taskService.GetCats(attribute, order, offset, limit
                  /*queryCatColorInfoDTO.Attribute, queryCatColorInfoDTO.Order,
                  //queryCatColorInfoDTO.Offset, queryCatColorInfoDTO.Limit*/);
             return Json(catDTO);
@@ -57,7 +57,7 @@ namespace wg_forge_backend.Controllers
         [HttpGet("ping/")]
         public IActionResult Ping()
         {
-            return Content(taskService.Ping());
+            return Content(_taskService.Ping());
         }
 
         /// <summary>
@@ -68,14 +68,14 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(List<CatColorInfoDTO>), 200)]
         public IActionResult Exercise1()
         {
-            return Json(taskService.Exercise1());
+            return Json(_taskService.Exercise1());
         }
 
         [HttpGet("ex_2/")]//проборосил сюда для наглядности
         [ProducesResponseType(typeof(List<CatStatDTO>), 200)]
         public IActionResult Exercise2()
         {
-            return Json(taskService.Exercise2());
+            return Json(_taskService.Exercise2());
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace wg_forge_backend.Controllers
         {
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
-            taskService.AddCat(newCatDTO);
+            _taskService.AddCat(newCatDTO);
             return StatusCode(200, "Successfully added a new cat");
         }
 
@@ -121,7 +121,7 @@ namespace wg_forge_backend.Controllers
         {
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
-            taskService.EditCat(newCatDTO);
+            _taskService.EditCat(newCatDTO);
             return StatusCode(200, "Cahange sucsess update");
         }
 
@@ -143,7 +143,7 @@ namespace wg_forge_backend.Controllers
         {
             if (!ModelState.IsValid)//added for passing tests
                 return BadRequest();
-            taskService.DeleteCat(catDTO);
+            _taskService.DeleteCat(catDTO);
             //taskService.DeleteCat(new CatDTO {Name = Name });
             return StatusCode(200, "Cat deleted");
         }
@@ -158,7 +158,7 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatOwners()
         {
-            return Json(taskService.GetCatOwners());
+            return Json(_taskService.GetCatOwners());
         }
     }
 }

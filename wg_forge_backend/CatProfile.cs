@@ -20,6 +20,8 @@ namespace wg_forge_backend
             CreateMap<NewCatDTO, CatDTO>();
             CreateMap<CatOwner, CatOwnerDTO>();
             CreateMap<CatOwnerDTO, CatOwner>();
+            CreateMap<RegisterModelDTO, CatOwner>();
+            CreateMap<CatOwner, AccountModelDTO>();
         }
     }
 }

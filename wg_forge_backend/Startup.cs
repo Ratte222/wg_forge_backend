@@ -38,6 +38,7 @@ namespace wg_forge_backend
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
             services.AddScoped<ITaskService, TaskServices>();
+            services.AddScoped<IAccount, Account>();
             services.AddControllersWithViews();
             services.AddAutoMapper(typeof(CatProfile));
             //services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));

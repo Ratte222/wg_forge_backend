@@ -4,6 +4,20 @@
         <name>wg_forge_backend</name>
     </assembly>
     <members>
+        <member name="M:wg_forge_backend.Controllers.AccountController.Authenticate(BLL.DTO.LoginModelDTO)">
+            <summary>
+            Generates a token for registered users 
+            </summary>
+            <param name="loginModelDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:wg_forge_backend.Controllers.AccountController.Registration(BLL.DTO.RegisterModelDTO)">
+            <summary>
+            Registers new users 
+            </summary>
+            <param name="registerModelDTO"></param>
+            <returns></returns>
+        </member>
         <member name="M:wg_forge_backend.Controllers.CatsController.Cats(System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Get a list of all cats

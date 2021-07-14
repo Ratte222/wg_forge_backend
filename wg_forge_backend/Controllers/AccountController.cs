@@ -6,28 +6,41 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using wg_forge_backend.JWT;
+using BLL.Interfaces;
+using BLL.DTO;
+using BLL.Infrastructure;
+using wg_forge_backend.Models;
+
+//статьи с реализацией авторизвции JWT https://fuse8.ru/articles/using-asp-net-core-identity-and-jwt,
+//https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api,
+//https://metanit.com/sharp/aspnet5/23.7.php
 namespace wg_forge_backend.Controllers
 {
 
-    public class Person
-    {
-        public string Login { get; set; }
-        public string Password { get; set; }
-        public string Role { get; set; }
-    }
-
+    
+    [ApiController]
     public class AccountController:Controller
     {
-        private List<Person> people = new List<Person>
-        {
-            new Person {Login="admin@gmail.com", Password="12345", Role = "admin" },
-            new Person { Login="qwerty@gmail.com", Password="55555", Role = "user" }
-        };
+        private IAccount _account;
 
-        [HttpPost("/token")]
-        public IActionResult Token(string username, string password)
+        public AccountController(IAccount account)
         {
-            var identity = GetIdentity(username, password);
+            _account = account;
+        }
+
+        /// <summary>
+        /// Generates a token for registered users 
+        /// </summary>
+        /// <param name="loginModelDTO"></param>
+        /// <returns></returns>
+        [HttpPost("/authenticate")]
+        [ProducesResponseType(typeof(List<LoginResponseModel>), 200)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+        //[ProducesResponseType(typeof(string), 400)]
+        [ProducesResponseType(typeof(string), 500)]
+        public IActionResult Authenticate(LoginModelDTO loginModelDTO)
+        {
+            var identity = GetIdentity(loginModelDTO);
             if (identity == null)
             {
                 return BadRequest(new { errorText = "Invalid username or password." });
@@ -44,24 +57,43 @@ namespace wg_forge_backend.Controllers
                     signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            var response = new
+            var response = new LoginResponseModel()
             {
-                access_token = encodedJwt,
-                username = identity.Name
+                AccessToken = encodedJwt,
+                UserName = identity.Name
             };
 
             return Json(response);
         }
 
-        private ClaimsIdentity GetIdentity(string username, string password)
+
+        /// <summary>
+        /// Registers new users 
+        /// </summary>
+        /// <param name="registerModelDTO"></param>
+        /// <returns></returns>
+        [HttpPost("/registration")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+        //у меня для этого запроса с одним и тем же кодом ответа может прийтиразные тела ответа
+        // это нужно исправлять?
+        //[ProducesResponseType(typeof(ValidationException), 400)]        
+        [ProducesResponseType(typeof(string), 500)]
+        public IActionResult Registration(RegisterModelDTO registerModelDTO)
         {
-            Person person = people.FirstOrDefault(x => x.Login == username && x.Password == password);
-            if (person != null)
+            _account.Registration(registerModelDTO);
+            return StatusCode(200, "Register succes");
+        }
+
+        private ClaimsIdentity GetIdentity(LoginModelDTO loginModelDTO)
+        {
+            AccountModelDTO accountModelDTO = _account.Authenticate(loginModelDTO);
+            if (accountModelDTO != null)
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, person.Login),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, person.Role)
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, accountModelDTO.Login),
+                    new Claim(ClaimsIdentity.DefaultRoleClaimType, accountModelDTO.Role)
                 };
                 ClaimsIdentity claimsIdentity =
                 new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
