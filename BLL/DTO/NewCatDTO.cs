@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using DAL.Helpers;
 using BLL.ValidationClass;
 
 namespace BLL.DTO
@@ -16,7 +18,7 @@ namespace BLL.DTO
         /// Cat color
         /// </summary>
         /// <example>black</example>
-        [Required, CatColors(ErrorMessage = "There is no such color of a cat")]
+        [Required, /*CatColors(ErrorMessage = "There is no such color of a cat")*/]
         public string Color { get; set; }
         /// <summary>
         /// Tail length in centimeters
@@ -35,5 +37,21 @@ namespace BLL.DTO
         /// Cat owners list
         /// </summary>
         //public List<CatOwnerDTO> CatOwnersDTO { get; set; } = new List<CatOwnerDTO>();
+
+        public void CheckColors(AppSettings appSettings)
+        {
+            if(Color.IndexOf('&')>-1)//multicolor cat
+            {
+                string[] splitColor = Color.Split('&', System.StringSplitOptions.RemoveEmptyEntries);
+                foreach(string s in splitColor)
+                {
+                    if (!appSettings.HexColor.Any(i => i.Key.ToLower() == s.ToLower().Trim()))
+                        throw new BLL.Infrastructure.ValidationException("There is no such color of a cat");
+                }
+            }
+            else
+            if (!appSettings.HexColor.Any(i => i.Key.ToLower() == Color.ToLower()))
+                throw new BLL.Infrastructure.ValidationException("There is no such color of a cat");
+        }
     }
 }

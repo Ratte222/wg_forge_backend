@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace wg_forge_backend.Helpers
+namespace DAL.Helpers
 {
     public class AppSettings
     {
@@ -11,5 +11,6 @@ namespace wg_forge_backend.Helpers
         public string Audience { get; set; }  // потребитель токена
         public int Lifetime { get; set; }     // время жизни токена - 5 минут
         public string Secret { get; set; }    // ключ для шифрации
+        public Dictionary<string, string> HexColor { get; set; } = new Dictionary<string, string>();
     }
 }

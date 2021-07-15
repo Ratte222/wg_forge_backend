@@ -9,16 +9,16 @@ namespace DAL.Entities
 
     public class Cat
     {
-        [NotMapped]
-        public static readonly string[] CatColor = 
-        {
-            "black",
-            "white",
-            "black & white",
-            "red",
-            "red & white",
-            "red & black & white"
-        };
+        //[NotMapped]
+        //public static readonly string[] CatColor = 
+        //{
+        //    "black",
+        //    "white",
+        //    "black & white",
+        //    "red",
+        //    "red & white",
+        //    "red & black & white"
+        //};
         [Key/*, Column("name")*/]
         public string Name { get; set; }
         //не понял как сдеать перечесления сторок чтоб использовать атрибут "EnumDataType" 

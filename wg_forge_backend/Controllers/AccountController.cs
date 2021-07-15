@@ -10,7 +10,7 @@ using BLL.DTO;
 using BLL.Infrastructure;
 using wg_forge_backend.Models;
 using Microsoft.Extensions.Options;
-using wg_forge_backend.Helpers;
+using DAL.Helpers;
 
 //статьи с реализацией авторизвции JWT https://fuse8.ru/articles/using-asp-net-core-identity-and-jwt,
 //https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api,

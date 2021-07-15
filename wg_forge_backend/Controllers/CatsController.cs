@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using BLL.DTO;
 using System.Text.Json;
+using DAL.Helpers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 
 namespace wg_forge_backend.Controllers
 {
@@ -17,9 +19,11 @@ namespace wg_forge_backend.Controllers
     public class CatsController : Controller
     {
         private ITaskService _taskService;
-        public CatsController(ITaskService taskService_)
+        AppSettings _appSettings;
+        public CatsController(ITaskService taskService_, IOptions<AppSettings> appSettings)
         {
             _taskService = taskService_;
+            _appSettings = appSettings.Value;
         }
         /// <summary>
         /// Get a list of all cats
@@ -95,6 +99,20 @@ namespace wg_forge_backend.Controllers
         }
 
         /// <summary>
+        /// Get cat colors
+        /// </summary>
+        /// <response code="200">JSON</response>
+        /// <response code="500">Oops! Can't get cat colors right now</response>
+        [Authorize(Roles = AccountRole.CatOwner)]
+        [HttpGet("cat/")]
+        [ProducesResponseType(typeof(Dictionary<string,string>), 200)]
+        [ProducesResponseType(typeof(string), 500)]
+        public IActionResult AddNewCat()
+        {
+            return Json(_appSettings.HexColor);
+        }
+
+        /// <summary>
         /// Adds a new cat 
         /// </summary>
         /// <param name="newCatDTO">Cat created</param>
@@ -114,14 +132,19 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200, "Successfully added a new cat");
         }
 
-        //[HttpPost("cat/Edit/")]
-        //public IActionResult CatEdit(NewCatDTO newCatDTO)
-        //{
-        //    if (!ModelState.IsValid)//added for passing tests
-        //        return BadRequest();
-        //    taskService.EditCat(newCatDTO);
-        //    return StatusCode(200);
-        //}
+        /// <summary>
+        /// Get cat colors
+        /// </summary>
+        /// <response code="200">JSON</response>
+        /// <response code="500">Oops! Can't get cat colors right now</response>
+        [Authorize(Roles = AccountRole.CatOwner)]
+        [HttpGet("cat/Edit/")]
+        [ProducesResponseType(typeof(Dictionary<string, string>), 200)]
+        [ProducesResponseType(typeof(string), 500)]
+        public IActionResult CatEdit()
+        {
+            return Json(_appSettings.HexColor);
+        }
 
         /// <summary>
         /// Change the record of the cat

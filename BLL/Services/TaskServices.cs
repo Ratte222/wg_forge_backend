@@ -8,8 +8,9 @@ using BLL.BusinessModels;
 using DAL.Interface;
 using DAL.Entities;
 using AutoMapper;
-using Microsoft.Data.SqlClient;
+using DAL.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace BLL.Services
 {
@@ -21,14 +22,17 @@ namespace BLL.Services
         private IRepository<CatStat> _repoCatStat;
         private IRepository<CatOwner> _repoCatOwners;
         private readonly IMapper _mapper;
+        private AppSettings _appSettings;
         public TaskServices(IRepository<Cat> repoCat, IRepository<CatColorInfo> repoCatColorInfo,
-            IRepository<CatStat> repoCatStat, IRepository<CatOwner> repoCatOwners,  IMapper mapper)
+            IRepository<CatStat> repoCatStat, IRepository<CatOwner> repoCatOwners,  IMapper mapper,
+            IOptions<AppSettings> appSettings)
         {
             _mapper = mapper;
             this._repoCat = repoCat;
             this._repoCatColorInfo = repoCatColorInfo;
             this._repoCatStat = repoCatStat;
             this._repoCatOwners = repoCatOwners;
+            _appSettings = appSettings.Value;
         }
 
         public List<CatDTO> GetCats(string OwnerLogin)
@@ -103,6 +107,7 @@ namespace BLL.Services
 
         public void AddCat(NewCatDTO newCatDTO, string OwnerLogin)
         {
+            newCatDTO.CheckColors(_appSettings);
             CatOwner catOwner = _repoCatOwners.GetAll_Queryable().Single(i => i.Login.ToLower() == OwnerLogin.ToLower());
             if (catOwner == null)
                 throw new SelectException("Сould not find the owner. Please log in again.");
@@ -115,7 +120,8 @@ namespace BLL.Services
         }
 
         public void EditCat(NewCatDTO catDTO, string OwnerLogin)
-        {            
+        {
+            catDTO.CheckColors(_appSettings);
             if (!_repoCat.GetAll_Queryable().Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
                 throw new ValidationException("A cat with the same name already not exists");            
             if (!_repoCatOwners.GetAll_Queryable().AsNoTracking().Include(i => i.Cats)

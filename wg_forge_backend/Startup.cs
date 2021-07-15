@@ -19,7 +19,8 @@ using System;
 using Serilog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using wg_forge_backend.Helpers;
+using DAL.Helpers;
+using System.Collections.Generic;
 
 namespace wg_forge_backend
 {
@@ -37,9 +38,6 @@ namespace wg_forge_backend
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
-            services.AddScoped<ITaskService, TaskServices>();
-            services.AddScoped<IAccountService, AccountService>();
-            services.AddControllersWithViews();
             services.AddAutoMapper(typeof(CatProfile));
             //services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
             //services.AddScoped(typeof(IRepository<CatColorInfo>), typeof(Repository<CatColorInfo>));
@@ -88,8 +86,11 @@ namespace wg_forge_backend
                     ValidateIssuerSigningKey = true,
                 };
             });
-
-            
+            services.AddScoped<ITaskService, TaskServices>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddControllersWithViews();
+            //var hexColorSection = Configuration.GetSection("HEXColor");
+            //var hexColor = hexColorSection.Get<Dictionary<string, string>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
