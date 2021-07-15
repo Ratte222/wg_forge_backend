@@ -108,6 +108,7 @@ namespace BLL.Services
         public void AddCat(NewCatDTO newCatDTO, string OwnerLogin)
         {
             newCatDTO.CheckColors(_appSettings);
+            newCatDTO.CheckReasoneAddCat(_appSettings);
             CatOwner catOwner = _repoCatOwners.GetAll_Queryable().Single(i => i.Login.ToLower() == OwnerLogin.ToLower());
             if (catOwner == null)
                 throw new SelectException("Сould not find the owner. Please log in again.");
@@ -116,6 +117,7 @@ namespace BLL.Services
             Cat cat = _mapper.Map<NewCatDTO, Cat>(newCatDTO);
             _repoCat.Create(cat);
             catOwner.Cats.Add(cat);
+            catOwner.CatPoints += _appSettings.ReasoneDeleteCat[newCatDTO.ReasoneAddCat.ToLower()];
             _repoCatOwners.Update(catOwner);
         }
 
@@ -133,16 +135,31 @@ namespace BLL.Services
 
         public void DeleteCat(CatDTO catDTO, string OwnerLogin)
         {
+            catDTO.CheckReasoneAddCat(_appSettings);
+
             if (!_repoCatOwners.GetAll_Queryable().AsNoTracking().Include(i => i.Cats)
                 .Single(i => i.Login.ToLower() == OwnerLogin.ToLower())
                 .Cats.Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
+                //if(!catOwner.Cats.Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))    
                 throw new ValidationException("You are not the owner of this cat");
             _repoCat.Delete(_mapper.Map<CatDTO, Cat>(catDTO));
+            CatOwner catOwner = _repoCatOwners.GetAll_Queryable().AsNoTracking()
+                .Include(i => i.Cats).Single(i => i.Login.ToLower() == OwnerLogin.ToLower());
+            catOwner.CatPoints += _appSettings.ReasoneDeleteCat[catDTO.ReasoneDeleteCat.ToLower()];
+            _repoCatOwners.Update(catOwner);
         }
 
         public string Ping()
         {
             return "Cats Service. Version 0.1";
+        }
+
+        public CatOwnerDTO GetCatOwner(string OwnerLogin)
+        {
+            List<CatOwner> catOwners = _repoCatOwners.GetAll_Queryable()
+                .Include(u => u.Cats).OrderBy(i => i.Name).ToList();
+            return _mapper.Map<CatOwner, CatOwnerDTO>(_repoCatOwners.GetAll_Queryable()
+                .Include(i=>i.Cats).Single(i => i.Login.ToLower() == OwnerLogin.ToLower()));
         }
     }
 }

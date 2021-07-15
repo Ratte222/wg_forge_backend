@@ -83,6 +83,13 @@
             <response code="400">One or more validation errors occurred</response>
             <response code="500">Oops! Can't edit cat right now</response>
         </member>
+        <member name="M:wg_forge_backend.Controllers.CatsController.CatDelete">
+            <summary>
+            Get reasone delete cat
+            </summary>
+            <response code="200">JSON</response>
+            <response code="500">Oops! Can't get cat colors right now</response>
+        </member>
         <member name="M:wg_forge_backend.Controllers.CatsController.CatDelete(BLL.DTO.CatDTO)">
             <summary>
             Deletes the entry of the cat by name 
@@ -96,6 +103,13 @@
         <member name="M:wg_forge_backend.Controllers.CatsController.CatOwners">
             <summary>
             Returns all owners and their cats
+            </summary>
+            <returns>json</returns>
+            <response code="500">Oops! Can't return list cats right now</response>
+        </member>
+        <member name="M:wg_forge_backend.Controllers.CatsController.CatOwner">
+            <summary>
+            Returns info about authorized owner and their cats
             </summary>
             <returns>json</returns>
             <response code="500">Oops! Can't return list cats right now</response>

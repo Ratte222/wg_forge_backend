@@ -17,6 +17,8 @@ namespace DAL.Entities
         public string Password { get; set; }
         [Required, MaxLength(20)]
         public string Role { get; set; }
+        [Required]
+        public int CatPoints { get; set; }
 
         public List<Cat> Cats { get; set; } = new List<Cat>();
         public List<CatsAndOwners> CatsAndOwners { get; set; } = new List<CatsAndOwners>();

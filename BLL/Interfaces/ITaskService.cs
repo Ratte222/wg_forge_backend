@@ -16,5 +16,6 @@ namespace BLL.Interfaces
         void EditCat(NewCatDTO newCatDTO, string OwnerLogin);
         void DeleteCat(CatDTO catDTO, string OwnerLogin);
         List<CatOwnerDTO> GetCatOwners();
+        CatOwnerDTO GetCatOwner(string OwnerLogin);
     }
 }

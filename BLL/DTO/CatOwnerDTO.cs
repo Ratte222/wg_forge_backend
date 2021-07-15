@@ -20,6 +20,11 @@ namespace BLL.DTO
         public int Age { get; set; }
 
         /// <summary>
+        /// Points received for actions with cats 
+        /// </summary>
+        public int CatPoints { get; set; }
+
+        /// <summary>
         /// Cat list
         /// </summary>
         public List<CatDTO> Cats { get; set; } = new List<CatDTO>();

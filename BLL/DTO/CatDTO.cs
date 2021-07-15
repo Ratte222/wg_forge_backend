@@ -1,6 +1,8 @@
-﻿using System;
+﻿using DAL.Helpers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 
 namespace BLL.DTO
@@ -32,6 +34,14 @@ namespace BLL.DTO
         /// <example>10</example>
         public int WhiskersLength { get; set; }
 
+        public string ReasoneDeleteCat { get; set; }
         //public List<CatOwnerDTO> CatOwnersDTO { get; set; } = new List<CatOwnerDTO>();
+
+        public void CheckReasoneAddCat(AppSettings appSettings)
+        {
+            if (!appSettings.ReasoneDeleteCat.Any(i => (i.Key.ToLower() == ReasoneDeleteCat.ToLower()) &&
+                    (i.Value <= 0)))
+                throw new BLL.Infrastructure.ValidationException("There is no such reasone delete of a cat");
+        }
     }
 }

@@ -8,6 +8,7 @@ using BLL.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using BLL.DTO;
+using wg_forge_backend.Models;
 using System.Text.Json;
 using DAL.Helpers;
 using Microsoft.AspNetCore.Authorization;
@@ -105,11 +106,15 @@ namespace wg_forge_backend.Controllers
         /// <response code="500">Oops! Can't get cat colors right now</response>
         [Authorize(Roles = AccountRole.CatOwner)]
         [HttpGet("cat/")]
-        [ProducesResponseType(typeof(Dictionary<string,string>), 200)]
+        [ProducesResponseType(typeof(AddOrEditCatResponseModel), 200)]
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult AddNewCat()
         {
-            return Json(_appSettings.HexColor);
+            AddOrEditCatResponseModel addOrEditCatResponseModel = new AddOrEditCatResponseModel();
+            addOrEditCatResponseModel.HexColor = _appSettings.HexColor;
+            addOrEditCatResponseModel.ReasoneAddCat = _appSettings.ReasoneDeleteCat.Where(i => i.Value > 0)
+                .ToDictionary(i => i.Key, j => j.Value);
+            return Json(addOrEditCatResponseModel);
         }
 
         /// <summary>
@@ -139,10 +144,10 @@ namespace wg_forge_backend.Controllers
         /// <response code="500">Oops! Can't get cat colors right now</response>
         [Authorize(Roles = AccountRole.CatOwner)]
         [HttpGet("cat/Edit/")]
-        [ProducesResponseType(typeof(Dictionary<string, string>), 200)]
+        [ProducesResponseType(typeof(AddOrEditCatResponseModel), 200)]
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatEdit()
-        {
+        {            
             return Json(_appSettings.HexColor);
         }
 
@@ -165,6 +170,21 @@ namespace wg_forge_backend.Controllers
             _taskService.EditCat(newCatDTO, this.User.Identity.Name);
             return StatusCode(200, "Cahange sucsess update");
         }
+
+        /// <summary>
+        /// Get reasone delete cat
+        /// </summary>
+        /// <response code="200">JSON</response>
+        /// <response code="500">Oops! Can't get cat colors right now</response>
+        [Authorize(Roles = AccountRole.CatOwner)]
+        [HttpGet("cat/Delete/")]
+        [ProducesResponseType(typeof(Dictionary<string, int>), 200)]
+        [ProducesResponseType(typeof(string), 500)]
+        public IActionResult CatDelete()
+        {
+            return Json(_appSettings.ReasoneDeleteCat.Where(i=>i.Value<=0).ToDictionary(i=>i.Key, j=>j.Value));
+        }
+
 
         //[HttpPost("cat/Delete/")]
         //[HttpDelete("cat/Delete/")]
@@ -202,6 +222,20 @@ namespace wg_forge_backend.Controllers
         public IActionResult CatOwners()
         {
             return Json(_taskService.GetCatOwners());
+        }
+
+        /// <summary>
+        /// Returns info about authorized owner and their cats
+        /// </summary>
+        /// <returns>json</returns>
+        /// <response code="500">Oops! Can't return list cats right now</response>
+        [Authorize(Roles = AccountRole.CatOwner)]
+        [HttpGet("catOwner")]
+        [ProducesResponseType(typeof(CatOwnerDTO), 200)]
+        [ProducesResponseType(typeof(string), 500)]
+        public IActionResult CatOwner()
+        {            
+            return Json(_taskService.GetCatOwner(this.User.Identity.Name));
         }
     }
 }

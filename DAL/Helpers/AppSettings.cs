@@ -12,5 +12,6 @@ namespace DAL.Helpers
         public int Lifetime { get; set; }     // время жизни токена - 5 минут
         public string Secret { get; set; }    // ключ для шифрации
         public Dictionary<string, string> HexColor { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, int> ReasoneDeleteCat { get; set; } = new Dictionary<string, int>();
     }
 }

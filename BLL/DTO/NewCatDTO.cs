@@ -18,6 +18,7 @@ namespace BLL.DTO
         /// Cat color
         /// </summary>
         /// <example>black</example>
+        /// <example>black&white</example>
         [Required, /*CatColors(ErrorMessage = "There is no such color of a cat")*/]
         public string Color { get; set; }
         /// <summary>
@@ -32,12 +33,19 @@ namespace BLL.DTO
         /// <example>10</example>
         [Required, Range(0, 20, ErrorMessage = "Value for {0} must be between {1} and {2}.")]
         public int WhiskersLength { get; set; }
+        //[Required]
+        public string ReasoneAddCat { get; set; }
 
         /// <summary>
         /// Cat owners list
         /// </summary>
         //public List<CatOwnerDTO> CatOwnersDTO { get; set; } = new List<CatOwnerDTO>();
-
+        public void CheckReasoneAddCat(AppSettings appSettings)
+        {
+            if (!appSettings.ReasoneDeleteCat.Any(i => (i.Key.ToLower() == ReasoneAddCat.ToLower()) &&
+            (i.Value > 0)))
+                throw new BLL.Infrastructure.ValidationException("There is no such reasone add of a cat");
+        }
         public void CheckColors(AppSettings appSettings)
         {
             if(Color.IndexOf('&')>-1)//multicolor cat
