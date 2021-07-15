@@ -21,6 +21,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using DAL.Helpers;
 using System.Collections.Generic;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Net;
 
 namespace wg_forge_backend
 {
@@ -37,6 +40,26 @@ namespace wg_forge_backend
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
+            //https://docs.microsoft.com/ru-ru/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0
+            services.AddHealthChecks().AddDbContextCheck<CatContext>()//понапихал тут всякого себе для примеров
+                .AddCheck("Foo", () =>
+                {
+                    HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(
+                        "https://localhost:5001/ping");
+                    HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                    if (resp.StatusCode == HttpStatusCode.OK)
+                    {
+                        return HealthCheckResult.Healthy("Ping is OK!");
+                    }
+                    else
+                    {
+                        return HealthCheckResult.Unhealthy("Ping is unhealthy!");
+                    }
+                }, tags: new[] { "ping_tag" })
+                .AddCheck("Bar", i =>
+                     HealthCheckResult.Unhealthy("Bar is unhealthy!"), tags: new[] { "bar_tag" })
+                .AddCheck("Baz", () =>
+                    HealthCheckResult.Healthy("Baz is OK!"), tags: new[] { "baz_tag" }); ;
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
             services.AddAutoMapper(typeof(CatProfile));
             //services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
@@ -122,6 +145,17 @@ namespace wg_forge_backend
             app.UseMiddleware<ExeptionMeddleware>();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+                {
+                    ResultStatusCodes =
+                    {
+                        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                        [HealthStatus.Degraded] = StatusCodes.Status200OK,
+                        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+                    },
+                    Predicate = (check) => check.Tags.Contains("ping_tag") ||
+                        check.Tags.Contains("baz_tag")
+                });
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{*catchall}");
