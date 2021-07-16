@@ -23,6 +23,11 @@ namespace DAL.Service
             return base.GetAll_Queryable().Include(i => i.CatPhotos).AsNoTracking().AsEnumerable();
         }
 
+        public IQueryable<Cat> GetAll()
+        {
+            return base.GetAll_Queryable();
+        }
+
         public override Cat Get(long id)
         {
             return base.Get(id);

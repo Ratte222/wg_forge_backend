@@ -15,7 +15,13 @@ namespace DAL.Service
         
         public override IQueryable<CatOwner> GetAll_Queryable()
         {
-            return base.GetAll_Queryable().Include(i=>i.CatsAndOwners).ThenInclude(i=>i.Cat).AsNoTracking();
+            return base.GetAll_Queryable().Include(i=>i.CatsAndOwners).ThenInclude(i=>i.Cat)
+                .ThenInclude(i => i.CatPhotos).AsNoTracking();
+        }
+
+        public IQueryable<CatOwner> GetAll()
+        {
+            return base.GetAll_Queryable();
         }
 
         public override IEnumerable<CatOwner> GetAll_Enumerable()

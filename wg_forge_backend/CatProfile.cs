@@ -19,12 +19,22 @@ namespace wg_forge_backend
             CreateMap<CatStat, CatStatDTO>();
             CreateMap<NewCatDTO, Cat>();
             CreateMap<NewCatDTO, CatDTO>();
-            CreateMap<CatOwner, CatOwnerDTO>();
+
+            CreateMap<CatOwner, CatOwnerDTO>()
+                .ForMember("Cats", opt => opt.MapFrom(scr => scr.CatsAndOwners));
+                //.ForMember("Cats", opt => opt.MapFrom(scr => scr.CatsAndOwners.Select<Cat>(i => i.Cat)));
+            CreateMap<CatsAndOwners, CatDTO>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(scr => scr.Cat.Name))
+                .ForMember(dest => dest.Color, opt => opt.MapFrom(scr => scr.Cat.Color))
+                .ForMember(dest => dest.TailLength, opt => opt.MapFrom(scr => scr.Cat.TailLength))
+                .ForMember(dest => dest.WhiskersLength, opt => opt.MapFrom(scr => scr.Cat.WhiskersLength))
+                .ForMember(dest => dest.CatPhotosDTO, opt => opt.MapFrom(scr => scr.Cat.CatPhotos));
             CreateMap<CatOwnerDTO, CatOwner>();
             CreateMap<RegisterModelDTO, CatOwner>();
             CreateMap<CatOwner, AccountModelDTO>();
             CreateMap<CatPhotoDTO, CatPhoto>();
-            CreateMap<CatPhoto, CatPhotoDTO>();
+            CreateMap<CatPhoto, CatPhotoDTO>()
+                .ForMember(dest=>dest.CatPhotoName, opt=>opt.MapFrom(scr=> "CatImages/"+ scr.CatPhotoName));
         }
     }
 }
