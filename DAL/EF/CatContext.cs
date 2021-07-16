@@ -13,6 +13,7 @@ namespace DAL.EF
         public DbSet<CatColorInfo> CatColorInfos { get; set; }
         public DbSet<CatStat> CatStats { get; set; }
         public DbSet<CatOwner> CatOwners { get; set; }
+        public DbSet<CatPhoto> CatPhotos { get; set; }
 
         public CatContext() { }
 
@@ -61,7 +62,11 @@ namespace DAL.EF
                         j.HasKey(k => new { k.CatOwnersId, k.CatsName });
                         j.ToTable("CatsAndOwners");
                     }
-                );
+            );
+            modelBuilder.Entity<CatPhoto>()
+                .HasOne(cp => cp.Cat)
+                .WithMany(c => c.CatPhotos)
+                .HasForeignKey(cp => cp.CatName);
             modelBuilder.Entity<CatColorInfo>().HasKey(u => u.Color)/*.HasAlternateKey(u => u.Color)*/;
             //modelBuilder.Entity<CatStat>().HasNoKey();
         }

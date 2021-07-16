@@ -114,5 +114,11 @@
             <returns>json</returns>
             <response code="500">Oops! Can't return list cats right now</response>
         </member>
+        <member name="M:wg_forge_backend.Controllers.CatsController.AddCatPhoto(Microsoft.AspNetCore.Http.IFormFileCollection,System.String)">
+            <summary>
+            
+            </summary>
+            <response code="500">Oops! Can't added cat photo right now</response>
+        </member>
     </members>
 </doc>

@@ -22,6 +22,8 @@ namespace wg_forge_backend
             CreateMap<CatOwnerDTO, CatOwner>();
             CreateMap<RegisterModelDTO, CatOwner>();
             CreateMap<CatOwner, AccountModelDTO>();
+            CreateMap<CatPhotoDTO, CatPhoto>();
+            CreateMap<CatPhoto, CatPhotoDTO>();
         }
     }
 }

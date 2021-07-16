@@ -24,4 +24,8 @@
     <ProjectReference Include="..\BLL\BLL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\CatImages\" />
+  </ItemGroup>
+
 </Project>

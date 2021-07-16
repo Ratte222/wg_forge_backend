@@ -33,10 +33,10 @@ namespace wg_forge_backend
             {
                 var host = CreateHostBuilder(args).Build();
                 //Microsoft suggests doing so  https://docs.microsoft.com/ru-ru/ef/core/managing-schemas/migrations/applying?tabs=dotnet-core-cli
-                var scope = host.Services.CreateScope();                
-                var db = scope.ServiceProvider.GetRequiredService<CatContext>();
-                db.Database.Migrate();
-                scope.Dispose();
+                //var scope = host.Services.CreateScope();                
+                //var db = scope.ServiceProvider.GetRequiredService<CatContext>();
+                //db.Database.Migrate();
+                //scope.Dispose();
                 host.Run();
             }
             catch (Exception ex)

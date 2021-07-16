@@ -37,6 +37,8 @@ namespace BLL.DTO
         public string ReasoneDeleteCat { get; set; }
         //public List<CatOwnerDTO> CatOwnersDTO { get; set; } = new List<CatOwnerDTO>();
 
+        public List<CatPhotoDTO> CatPhotosDTO { get; set; } = new List<CatPhotoDTO>();
+
         public void CheckReasoneAddCat(AppSettings appSettings)
         {
             if (!appSettings.ReasoneDeleteCat.Any(i => (i.Key.ToLower() == ReasoneDeleteCat.ToLower()) &&

@@ -30,8 +30,10 @@ namespace DAL.Entities
         //[Column("whiskers_length")]
         public int WhiskersLength { get; set; }
 
-        //public int? CatOwnerId { get; set; }//внешний ключ
-        public List<CatOwner> CatOwners { get; set; } = new List<CatOwner>();//навигационное свойство
+        public List<CatPhoto> CatPhotos { get; set; } = new List<CatPhoto>();
+
+        //public int? CatOwnerId { get; set; }//foreign key
+        public List<CatOwner> CatOwners { get; set; }
         public List<CatsAndOwners> CatsAndOwners { get; set; } = new List<CatsAndOwners>();
     }
 }

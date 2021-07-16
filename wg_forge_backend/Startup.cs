@@ -117,8 +117,9 @@ namespace wg_forge_backend
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CatContext catContext)
         {
+            catContext.Database.Migrate();
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

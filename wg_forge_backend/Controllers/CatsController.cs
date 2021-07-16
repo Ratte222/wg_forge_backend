@@ -13,6 +13,9 @@ using System.Text.Json;
 using DAL.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Hosting;
 
 namespace wg_forge_backend.Controllers
 {
@@ -21,10 +24,13 @@ namespace wg_forge_backend.Controllers
     {
         private ITaskService _taskService;
         AppSettings _appSettings;
-        public CatsController(ITaskService taskService_, IOptions<AppSettings> appSettings)
+        private readonly IWebHostEnvironment _environment;
+        public CatsController(ITaskService taskService_, IOptions<AppSettings> appSettings,
+            IWebHostEnvironment IHostingEnvironment)
         {
             _taskService = taskService_;
             _appSettings = appSettings.Value;
+            _environment = IHostingEnvironment;
         }
         /// <summary>
         /// Get a list of all cats
@@ -236,6 +242,64 @@ namespace wg_forge_backend.Controllers
         public IActionResult CatOwner()
         {            
             return Json(_taskService.GetCatOwner(this.User.Identity.Name));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <response code="500">Oops! Can't added cat photo right now</response>
+        //[Authorize(Roles = AccountRole.CatOwner)]
+        [HttpPost("addCatPhoto")]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(string), 500)]
+        public IActionResult AddCatPhoto([FromForm]IFormFileCollection files, [FromQuery] string catName/*, [FromBody] string catOwnerLogin*/)
+        {
+            string catOwnerLogin = "Vikulya";
+            _taskService.CheckCatInOwner(catName, catOwnerLogin);
+            List<CatPhotoDTO> catPhotoDTO = new List<CatPhotoDTO>();
+            foreach (var file in files)
+            {
+                string newFileName = SaveFiles(file);
+                if (!String.IsNullOrEmpty(newFileName))
+                    catPhotoDTO.Add(new CatPhotoDTO() { CatPhotoName = newFileName });
+            }
+            _taskService.AddCatPhoto(catPhotoDTO, catName);
+            return StatusCode(200);
+        }
+
+        private string SaveFiles(IFormFile file)
+        {
+            var fileName = string.Empty;
+            string PathDB = string.Empty;
+            string newFileName = string.Empty;
+            if (file.Length > 0)
+            {
+                //Getting FileName
+                fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+
+                //Assigning Unique Filename (Guid)
+                var myUniqueFileName = Convert.ToString(Guid.NewGuid());
+
+                //Getting file Extension
+                var FileExtension = Path.GetExtension(fileName);
+
+                // concating  FileName + FileExtension
+                newFileName = myUniqueFileName + FileExtension;
+
+                // Combines two strings into a path.
+                fileName = Path.Combine(_environment.WebRootPath, "CatImages") + $@"\{newFileName}";
+                if (!Directory.Exists(Path.Combine(_environment.WebRootPath, "CatImages")))
+                    Directory.CreateDirectory(Path.Combine(_environment.WebRootPath, "CatImages"));
+                // if you want to store path of folder in database
+                PathDB = "CatImages/" + newFileName;
+
+                using (FileStream fs = System.IO.File.Create(fileName))
+                {
+                    file.CopyTo(fs);
+                    fs.Flush();
+                }
+            }
+            return newFileName;
         }
     }
 }

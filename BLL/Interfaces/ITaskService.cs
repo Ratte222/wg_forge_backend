@@ -9,13 +9,15 @@ namespace BLL.Interfaces
     {
         string Ping();
         List<CatDTO> GetAllCats(string attribute, string order, int? offset, int? limit);
-        List<CatDTO> GetCats(string OwnerLogin);
+        List<CatDTO> GetCats(string ownerLogin);
         List<CatColorInfoDTO> Exercise1();
         CatStatDTO Exercise2();
-        void AddCat(NewCatDTO newCatDTO, string OwnerLogin);
-        void EditCat(NewCatDTO newCatDTO, string OwnerLogin);
-        void DeleteCat(CatDTO catDTO, string OwnerLogin);
+        void AddCat(NewCatDTO newCatDTO, string ownerLogin);
+        void EditCat(NewCatDTO newCatDTO, string ownerLogin);
+        void DeleteCat(CatDTO catDTO, string ownerLogin);
         List<CatOwnerDTO> GetCatOwners();
-        CatOwnerDTO GetCatOwner(string OwnerLogin);
+        CatOwnerDTO GetCatOwner(string ownerLogin);
+        void CheckCatInOwner(string catName, string ownerLogin);
+        void AddCatPhoto(List<CatPhotoDTO> catPhotosDTO, string catName);
     }
 }

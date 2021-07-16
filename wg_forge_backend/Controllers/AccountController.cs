@@ -16,6 +16,9 @@ using DAL.Helpers;
 //https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api,
 //https://jasonwatmore.com/post/2020/05/25/aspnet-core-3-api-jwt-authentication-with-refresh-tokens,
 //https://metanit.com/sharp/aspnet5/23.7.php
+
+//hash with salt https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rfc2898derivebytes.-ctor?redirectedfrom=MSDN&view=net-5.0#System_Security_Cryptography_Rfc2898DeriveBytes__ctor_System_String_System_Int32_System_Int32_
+//https://overcoder.net/q/10288/%D1%85%D1%8D%D1%88-%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C-%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8F-%D0%BF%D0%BE-%D1%83%D0%BC%D0%BE%D0%BB%D1%87%D0%B0%D0%BD%D0%B8%D1%8E-%D0%B4%D0%BB%D1%8F-aspnet-identity-%D0%BA%D0%B0%D0%BA-%D0%BE%D0%BD-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%D0%B5%D1%82-%D0%B8-%D1%8F%D0%B2%D0%BB%D1%8F%D0%B5%D1%82%D1%81%D1%8F
 namespace wg_forge_backend.Controllers
 {
 
