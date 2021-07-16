@@ -6,10 +6,10 @@ namespace DAL.Entities
 {
     public class CatsAndOwners
     {
-        public int CatOwnersId { get; set; }
+        public long CatOwnersId { get; set; }
         public CatOwner CatOwner { get; set; }
 
-        public string CatsName { get; set; }
+        public long CatsId { get; set; }
         public Cat Cat { get; set; }
     }
 }

@@ -45,28 +45,43 @@ namespace DAL.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<CatOwner>()
-                .HasMany(co => co.Cats)
-                .WithMany(c => c.CatOwners)
-                .UsingEntity<CatsAndOwners>(
-                    j => j
-                    .HasOne(i => i.Cat)
-                    .WithMany(i => i.CatsAndOwners)
-                    .HasForeignKey(i => i.CatsName),
-                    j => j
-                    .HasOne(co => co.CatOwner)
-                    .WithMany(cao => cao.CatsAndOwners)
-                    .HasForeignKey(i => i.CatOwnersId),
-                    j =>
-                    {
-                        j.HasKey(k => new { k.CatOwnersId, k.CatsName });
-                        j.ToTable("CatsAndOwners");
-                    }
-            );
+            modelBuilder.Entity<CatsAndOwners>()
+                .HasKey(k => new { k.CatOwnersId, k.CatsId });
+            modelBuilder.Entity<Cat>().HasKey(i => i.Id);
+            modelBuilder.Entity<CatOwner>().HasKey(i => i.Id);
+            modelBuilder.Entity<CatsAndOwners>()
+                .HasOne(cao => cao.CatOwner)
+                .WithMany(co => co.CatsAndOwners)
+                .HasForeignKey(cao => cao.CatOwnersId);
+            modelBuilder.Entity<CatsAndOwners>()
+                .HasOne(cao => cao.Cat)
+                .WithMany(co => co.CatsAndOwners)
+                .HasForeignKey(cao => cao.CatsId);
+
+
+            //modelBuilder.Entity<CatOwner>()
+            //    .HasMany(co => co.Cats)
+            //    .WithMany(c => c.CatOwners)
+            //    .UsingEntity<CatsAndOwners>(
+            //        j => j
+            //        .HasOne(i => i.Cat)
+            //        .WithMany(i => i.CatsAndOwners)
+            //        .HasForeignKey(i => i.CatsName),
+            //        j => j
+            //        .HasOne(co => co.CatOwner)
+            //        .WithMany(cao => cao.CatsAndOwners)
+            //        .HasForeignKey(i => i.CatOwnersId),
+            //        j =>
+            //        {
+            //            j.HasKey(k => new { k.CatOwnersId, k.CatsName });
+            //            j.ToTable("CatsAndOwners");
+            //        }
+            //);
+            modelBuilder.Entity<CatPhoto>().HasKey(i => i.Id);
             modelBuilder.Entity<CatPhoto>()
                 .HasOne(cp => cp.Cat)
                 .WithMany(c => c.CatPhotos)
-                .HasForeignKey(cp => cp.CatName);
+                .HasForeignKey(cp => cp.CatId);
             modelBuilder.Entity<CatColorInfo>().HasKey(u => u.Color)/*.HasAlternateKey(u => u.Color)*/;
             //modelBuilder.Entity<CatStat>().HasNoKey();
         }
@@ -86,7 +101,7 @@ namespace DAL.EF
             else
             {
                 DeleteData(db);
-                AddData(db);
+                //AddData(db);
             }
         }
 
@@ -112,9 +127,9 @@ namespace DAL.EF
             Cat Marfa = new Cat { Name = "Marfa", Color = "black & white", TailLength = 13, WhiskersLength = 11 };
             Cat Asya = new Cat { Name = "Asya", Color = "black", TailLength = 10, WhiskersLength = 10 };
             db.Cats.AddRange(Tihon, Marfa, Asya);
-            Artur.Cats.AddRange(new List<Cat> { Tihon});
-            Vika.Cats.AddRange(new List<Cat> { Tihon });
-            Diana.Cats.AddRange(new List<Cat> { Marfa, Asya});
+            //Artur.Cats.AddRange(new List<Cat> { Tihon});
+            //Vika.Cats.AddRange(new List<Cat> { Tihon });
+            //Diana.Cats.AddRange(new List<Cat> { Marfa, Asya});
             db.SaveChanges();
         }
 
@@ -161,13 +176,13 @@ namespace DAL.EF
             Cat Ula = (new Cat { Name = "Ula", Color = "red & white", TailLength = 16, WhiskersLength = 14 });
             db.Cats.AddRange(Tihon, Marfa, Asya, Amur, Hustav, Dina, Gass, CVika, Cold, Neo, Nord,
                 Kelly, Ost, Tayson, Lesya, Foma, Oddet, Cesar, Shurik, Flora, Tara, Yasha, Chlo, Snow, Sam, Ula);
-            Artur.Cats.AddRange(new List<Cat> { Tihon, Marfa });
-            Niki.Cats.AddRange(new List<Cat> { Asya, Amur, Ula });
-            Valera.Cats.AddRange(new List<Cat> { Hustav, Dina, Gass, CVika, Cold, Neo });
-            Vika.Cats.AddRange(new List<Cat> { Nord, Kelly, Ost, Tayson });
-            Den.Cats.AddRange(new List<Cat> { Lesya, Foma, Oddet, Cesar, Shurik, Flora, Tara, Yasha, Chlo, Snow });
-            Sasha.Cats.AddRange(new List<Cat> { Sam });
-            Diana.Cats.AddRange(new List<Cat> { Asya, Amur, Ula });
+            //Artur.Cats.AddRange(new List<Cat> { Tihon, Marfa });
+            //Niki.Cats.AddRange(new List<Cat> { Asya, Amur, Ula });
+            //Valera.Cats.AddRange(new List<Cat> { Hustav, Dina, Gass, CVika, Cold, Neo });
+            //Vika.Cats.AddRange(new List<Cat> { Nord, Kelly, Ost, Tayson });
+            //Den.Cats.AddRange(new List<Cat> { Lesya, Foma, Oddet, Cesar, Shurik, Flora, Tara, Yasha, Chlo, Snow });
+            //Sasha.Cats.AddRange(new List<Cat> { Sam });
+            //Diana.Cats.AddRange(new List<Cat> { Asya, Amur, Ula });
             db.SaveChanges();
         }
     }

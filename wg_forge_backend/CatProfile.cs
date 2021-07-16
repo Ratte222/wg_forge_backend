@@ -12,7 +12,8 @@ namespace wg_forge_backend
     {
         public CatProfile()
         {
-            CreateMap<Cat, CatDTO>();
+            CreateMap<Cat, CatDTO>()
+                .ForMember("CatPhotosDTO", opt => opt.MapFrom(scr => scr.CatPhotos));
             CreateMap<CatDTO, Cat>();
             CreateMap<CatColorInfo, CatColorInfoDTO>();
             CreateMap<CatStat, CatStatDTO>();

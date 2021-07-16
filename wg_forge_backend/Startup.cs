@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using DAL.EF;
 using DAL.Entities;
 using DAL.Interface;
-using DAL;  
+using DAL.Service;  
 using BLL.Services;
 using BLL.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -65,8 +65,8 @@ namespace wg_forge_backend
             //services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
             //services.AddScoped(typeof(IRepository<CatColorInfo>), typeof(Repository<CatColorInfo>));
             //services.AddScoped(typeof(IRepository<CatStat>), typeof(Repository<CatStat>));
-            services.AddScoped<IRepository<Cat>, Repository<Cat>>();
-            services.AddScoped<IRepository<CatOwner>, Repository<CatOwner>>();
+            services.AddScoped<ICatService, CatService>();
+            services.AddScoped<ICatOwnerService, CatOwnerService>();
             services.AddScoped<IRepository<CatColorInfo>, Repository<CatColorInfo>>();
             services.AddScoped<IRepository<CatStat>, Repository<CatStat>>();
             services.AddSwaggerGen(c=>

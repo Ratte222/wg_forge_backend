@@ -4,12 +4,12 @@ using System.Text;
 
 namespace DAL.Entities
 {
-    public class CatPhoto
+    public class CatPhoto:BaseEntity
     {
-        public int Id { get; set; }
+        //public int Id { get; set; }
         public string CatPhotoName { get; set; }
 
-        public string CatName { get; set; }
+        public long CatId { get; set; }
         public Cat Cat { get; set; }
     }
 }

@@ -11,10 +11,10 @@ namespace BLL.Services
 {
     public class AccountService:IAccountService
     {
-        private IRepository<CatOwner> _repoCatOwners;
+        private ICatOwnerService _repoCatOwners;
         private readonly IMapper _mapper;
 
-        public AccountService(IRepository<CatOwner> repoCatOwners, IMapper mapper)
+        public AccountService(ICatOwnerService repoCatOwners, IMapper mapper)
         {
             _repoCatOwners = repoCatOwners;
             _mapper = mapper;

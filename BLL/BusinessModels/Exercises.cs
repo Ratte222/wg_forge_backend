@@ -8,7 +8,7 @@ namespace BLL.BusinessModels
 {
     public class Exercises
     {
-        public void ProcessingExercise1(IRepository<Cat> repoCat, IRepository<CatColorInfo> repoCatColorInfo)
+        public void ProcessingExercise1(ICatService repoCat, IRepository<CatColorInfo> repoCatColorInfo)
         {
             List<CatColorInfo> catInfoNow = repoCatColorInfo.GetAll_Enumerable().ToList();
             if(catInfoNow.Count == 0)
@@ -26,7 +26,7 @@ namespace BLL.BusinessModels
 
             }            
         }
-        public void ProcessingExercise2(IRepository<Cat> repoCat, IRepository<CatStat> repoCatStat)
+        public void ProcessingExercise2(ICatService repoCat, IRepository<CatStat> repoCatStat)
         {
             List<Cat> cats = repoCat.GetAll_Queryable().OrderBy(i => i.TailLength).ToList();
             CatStat stats = new CatStat();
