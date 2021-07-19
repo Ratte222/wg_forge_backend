@@ -32,7 +32,11 @@ namespace wg_forge_backend
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            var builder = new ConfigurationBuilder()
+                            .AddJsonFile("MailAddressConfig.json")
+                           .AddConfiguration(configuration);
+            // create config
+            Configuration = builder.Build();
         }
 
         public IConfiguration Configuration { get; }
@@ -44,7 +48,7 @@ namespace wg_forge_backend
 
             //--------- HealthCheck settingd ---------------------
             //https://docs.microsoft.com/ru-ru/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0
-            services.AddHealthChecks().AddDbContextCheck<CatContext>()//понапихал тут всякого себе для примеров
+            services.AddHealthChecks().AddDbContextCheck<CatContext>()//added different for examples
                 .AddCheck("Foo", () =>
                 {
                     HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(
@@ -98,8 +102,6 @@ namespace wg_forge_backend
             //});
             //--------- JWT settingd ---------------------
 
-
-
             //---------Identity settingd ---------------------
             services.AddIdentity<CatOwner, IdentityRole>()
                 .AddEntityFrameworkStores<CatContext>();
@@ -123,6 +125,8 @@ namespace wg_forge_backend
                 options.User.AllowedUserNameCharacters =
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 options.User.RequireUniqueEmail = false;
+
+                options.SignIn.RequireConfirmedEmail = true;
             });
 
             //services.ConfigureApplicationCookie(options =>
@@ -162,7 +166,15 @@ namespace wg_forge_backend
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
+            var mailAddresConfigSection = Configuration.GetSection("MailAddresConfig");
+            services.Configure<EmailService>(mailAddresConfigSection);
+            var mailSettings = mailAddresConfigSection.Get<EmailService>();
+
             services.AddControllersWithViews();
+
+            
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
