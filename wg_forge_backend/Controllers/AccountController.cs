@@ -20,11 +20,14 @@ namespace wg_forge_backend.Controllers
     {
         private readonly UserManager<CatOwner> _userManager;
         private readonly SignInManager<CatOwner> _signInManager;
+        RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(UserManager<CatOwner> userManager, SignInManager<CatOwner> signInManager)
+        public AccountController(UserManager<CatOwner> userManager, SignInManager<CatOwner> signInManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -37,6 +40,9 @@ namespace wg_forge_backend.Controllers
             {
                 // set cokies
                 await _signInManager.SignInAsync(catOwner, false);
+                var allRoles = _roleManager.Roles.ToList();
+                await _userManager.AddToRoleAsync(catOwner, 
+                    _roleManager.KeyNormalizer.NormalizeName(AccountRole.CatOwner));
                 return StatusCode(200, "Registration succsess");
             }
             else
@@ -53,15 +59,23 @@ namespace wg_forge_backend.Controllers
         public async Task<IActionResult> Login(LoginModelDTO model)
         {           
             var result =
-                await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
             if (result.Succeeded)
             {
                 return StatusCode(200);
             }
             else
             {
-                return this.BadRequest("Wrong password or email ");
+                return this.BadRequest("Wrong password or userName ");
             }           
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            // удаляем аутентификационные куки
+            await _signInManager.SignOutAsync();
+            return StatusCode(200, "Logout done");
         }
     }
 }

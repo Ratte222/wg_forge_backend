@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Net;
+using BLL.DTO;
 
 namespace wg_forge_backend
 {
@@ -165,9 +166,12 @@ namespace wg_forge_backend
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CatContext catContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, 
+            CatContext catContext, RoleManager<IdentityRole> roleManager)
         {
             catContext.Database.Migrate();
+            InitializeIdentityRole(roleManager);
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -209,6 +213,20 @@ namespace wg_forge_backend
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{*catchall}");
             });
+        }
+
+        private void InitializeIdentityRole(RoleManager<IdentityRole> roleManager)
+        {
+            //foreach(string role in AccountRole.Roles)
+            //{
+            //if (roleManager.FindByNameAsync(role) == null)
+            //{
+            //roleManager.CreateAsync(new IdentityRole(role));
+            //}
+            //}
+            //roleManager.CreateAsync(new IdentityRole(AccountRole.Admin));
+            //roleManager.CreateAsync(new IdentityRole(AccountRole.CatOwner));
+            //roleManager.CreateAsync(new IdentityRole(AccountRole.User));
         }
     }
 }

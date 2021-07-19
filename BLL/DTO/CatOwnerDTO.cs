@@ -7,12 +7,12 @@ namespace BLL.DTO
 {
     public class CatOwnerDTO
     {
-        [Required]
-        public int Id { get; set; }
+        //[Required]
+        //public int Id { get; set; }
         /// <summary>
         /// Owner name
         /// </summary>
-        public string Name { get; set; }
+        public string UserName { get; set; }
         
         /// <summary>
         /// Owner age

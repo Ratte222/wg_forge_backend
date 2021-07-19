@@ -248,14 +248,14 @@ namespace wg_forge_backend.Controllers
         /// 
         /// </summary>
         /// <response code="500">Oops! Can't added cat photo right now</response>
-        //[Authorize(Roles = AccountRole.CatOwner)]
+        [Authorize(Roles = AccountRole.CatOwner)]
         [HttpPost("addCatPhoto")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult AddCatPhoto([FromForm]IFormFileCollection files, [FromQuery] string catName/*, [FromBody] string catOwnerLogin*/)
         {
-            string catOwnerLogin = "Vikulya";
-            _taskService.CheckCatInOwner(catName, catOwnerLogin);
+            //string catOwnerLogin = "Vikulya";
+            _taskService.CheckCatInOwner(catName, this.User.Identity.Name);
             List<CatPhotoDTO> catPhotoDTO = new List<CatPhotoDTO>();
             foreach (var file in files)
             {

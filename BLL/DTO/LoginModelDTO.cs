@@ -7,8 +7,8 @@ namespace BLL.DTO
 {
     public class LoginModelDTO
     {
-        [Required(ErrorMessage = "Email not specified")]
-        public string Email { get; set; }
+        [Required(ErrorMessage = "UserName not specified")]
+        public string UserName { get; set; }
 
         [Required(ErrorMessage = "Password not specified")]
         [DataType(DataType.Password)]
