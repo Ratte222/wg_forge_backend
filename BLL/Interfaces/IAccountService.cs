@@ -6,7 +6,7 @@ namespace BLL.Interfaces
 {
     public interface IAccountService
     {
-        AccountModelDTO Authenticate(LoginModelDTO loginModelDTO);
-        void Registration(RegisterModelDTO registerModelDTO);
+        //AccountModelDTO Authenticate(LoginModelDTO loginModelDTO);
+        //void Registration(RegisterModelDTO registerModelDTO);
     }
 }

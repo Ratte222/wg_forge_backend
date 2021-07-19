@@ -4,14 +4,16 @@ using DAL.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(CatContext))]
-    partial class CatContextModelSnapshot : ModelSnapshot
+    [Migration("20210719100534_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,21 +115,6 @@ namespace DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("cats_stat");
-                });
-
-            modelBuilder.Entity("DAL.Entities.CatsAndOwners", b =>
-                {
-                    b.Property<string>("CatOwnersId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("CatsId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("CatOwnersId", "CatsId");
-
-                    b.HasIndex("CatsId");
-
-                    b.ToTable("CatsAndOwners");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -336,12 +323,6 @@ namespace DAL.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<int>("Age")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CatPoints")
-                        .HasColumnType("int");
-
                     b.HasDiscriminator().HasValue("CatOwner");
                 });
 
@@ -354,25 +335,6 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.Navigation("Cat");
-                });
-
-            modelBuilder.Entity("DAL.Entities.CatsAndOwners", b =>
-                {
-                    b.HasOne("DAL.Entities.CatOwner", "CatOwner")
-                        .WithMany("CatsAndOwners")
-                        .HasForeignKey("CatOwnersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DAL.Entities.Cat", "Cat")
-                        .WithMany("CatsAndOwners")
-                        .HasForeignKey("CatsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cat");
-
-                    b.Navigation("CatOwner");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -429,13 +391,6 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Entities.Cat", b =>
                 {
                     b.Navigation("CatPhotos");
-
-                    b.Navigation("CatsAndOwners");
-                });
-
-            modelBuilder.Entity("DAL.Entities.CatOwner", b =>
-                {
-                    b.Navigation("CatsAndOwners");
                 });
 #pragma warning restore 612, 618
         }

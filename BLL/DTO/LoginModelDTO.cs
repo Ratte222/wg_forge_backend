@@ -7,11 +7,15 @@ namespace BLL.DTO
 {
     public class LoginModelDTO
     {
-        [Required(ErrorMessage = "Не указан Login")]
-        public string Login { get; set; }
+        [Required(ErrorMessage = "Email not specified")]
+        public string Email { get; set; }
 
-        [Required(ErrorMessage = "Не указан пароль")]
+        [Required(ErrorMessage = "Password not specified")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
+
+        [Display(Name = "Remember?")]
+        public bool RememberMe { get; set; }
+
     }
 }

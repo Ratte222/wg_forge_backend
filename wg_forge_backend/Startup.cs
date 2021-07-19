@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,6 +40,8 @@ namespace wg_forge_backend
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
+
+            //--------- HealthCheck settingd ---------------------
             //https://docs.microsoft.com/ru-ru/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0
             services.AddHealthChecks().AddDbContextCheck<CatContext>()//понапихал тут всякого себе для примеров
                 .AddCheck("Foo", () =>
@@ -60,16 +62,94 @@ namespace wg_forge_backend
                      HealthCheckResult.Unhealthy("Bar is unhealthy!"), tags: new[] { "bar_tag" })
                 .AddCheck("Baz", () =>
                     HealthCheckResult.Healthy("Baz is OK!"), tags: new[] { "baz_tag" }); ;
+            //--------- HealthCheck settingd ---------------------
+
+
+            //--------- JWT settingd ---------------------
+
+
+            //var appSettings = appSettingsSection.Get<AppSettings>();
+            //var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
+            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            //.AddJwtBearer(options =>
+            //{
+            //    options.RequireHttpsMetadata = true;//if false - do not use SSl
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        // укзывает, будет ли валидироваться издатель при валидации токена
+            //        ValidateIssuer = true,
+            //        // строка, представляющая издателя
+            //        ValidIssuer = appSettings.Issuer,
+
+            //        // будет ли валидироваться потребитель токена
+            //        ValidateAudience = true,
+            //        // установка потребителя токена
+            //        ValidAudience = appSettings.Audience,
+            //        // будет ли валидироваться время существования
+            //        ValidateLifetime = true,
+
+            //        // установка ключа безопасности
+            //        //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+            //        IssuerSigningKey = new SymmetricSecurityKey(key),
+            //        // валидация ключа безопасности
+            //        ValidateIssuerSigningKey = true,
+            //    };
+            //});
+            //--------- JWT settingd ---------------------
+
+
+
+            //---------Identity settingd ---------------------
+            services.AddIdentity<CatOwner, IdentityRole>()
+                .AddEntityFrameworkStores<CatContext>();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 0;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+            });
+
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    // Cookie settings
+            //    options.Cookie.HttpOnly = true;
+            //    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+            //    options.LoginPath = "Account/Login";
+            //    options.AccessDeniedPath = "/Account/AccessDenied";
+            //    options.SlidingExpiration = true;
+            //});
+            //---------Identity settingd ---------------------
+
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
-            services.AddAutoMapper(typeof(CatProfile));
-            //services.AddScoped(typeof(IRepository<Cat>), typeof(Repository<Cat>));
-            //services.AddScoped(typeof(IRepository<CatColorInfo>), typeof(Repository<CatColorInfo>));
-            //services.AddScoped(typeof(IRepository<CatStat>), typeof(Repository<CatStat>));
+
             services.AddScoped<ICatService, CatService>();
             services.AddScoped<ICatOwnerService, CatOwnerService>();
             services.AddScoped<IRepository<CatColorInfo>, Repository<CatColorInfo>>();
             services.AddScoped<IRepository<CatStat>, Repository<CatStat>>();
-            services.AddSwaggerGen(c=>
+
+            services.AddScoped<ITaskService, TaskServices>();
+            services.AddScoped<IAccountService, AccountService>();
+
+
+            services.AddAutoMapper(typeof(CatProfile));
+
+            services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cat API", Version = "v1", });
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -81,39 +161,7 @@ namespace wg_forge_backend
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
-            // configure jwt authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = true;//if false - do not use SSl
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    // укзывает, будет ли валидироваться издатель при валидации токена
-                    ValidateIssuer = true,
-                    // строка, представляющая издателя
-                    ValidIssuer = appSettings.Issuer,
-
-                    // будет ли валидироваться потребитель токена
-                    ValidateAudience = true,
-                    // установка потребителя токена
-                    ValidAudience = appSettings.Audience,
-                    // будет ли валидироваться время существования
-                    ValidateLifetime = true,
-
-                    // установка ключа безопасности
-                    //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    // валидация ключа безопасности
-                    ValidateIssuerSigningKey = true,
-                };
-            });
-            services.AddScoped<ITaskService, TaskServices>();
-            services.AddScoped<IAccountService, AccountService>();
             services.AddControllersWithViews();
-            //var hexColorSection = Configuration.GetSection("HEXColor");
-            //var hexColor = hexColorSection.Get<Dictionary<string, string>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

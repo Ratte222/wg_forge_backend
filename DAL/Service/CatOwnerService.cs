@@ -9,50 +9,58 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Service
 {
-    public class CatOwnerService : BaseService<CatOwner>, ICatOwnerService
+    public class CatOwnerService : ICatOwnerService
     {
-        public CatOwnerService(CatContext catContext) : base(catContext) { }
-        
-        public override IQueryable<CatOwner> GetAll_Queryable()
+        protected CatContext _context;
+        public CatOwnerService(CatContext catContext)
         {
-            return base.GetAll_Queryable().Include(i=>i.CatsAndOwners).ThenInclude(i=>i.Cat)
+            _context = catContext;
+        }
+
+        public IQueryable<CatOwner> GetAll_Queryable()
+        {
+            return _context.CatOwners.Include(i => i.CatsAndOwners).ThenInclude(i => i.Cat)
                 .ThenInclude(i => i.CatPhotos).AsNoTracking();
         }
 
         public IQueryable<CatOwner> GetAll()
         {
-            return base.GetAll_Queryable();
+            return _context.CatOwners.AsNoTracking();
         }
 
-        public override IEnumerable<CatOwner> GetAll_Enumerable()
+        public IEnumerable<CatOwner> GetAll_Enumerable()
         {
-            return base.GetAll_Queryable().Include(i => i.CatsAndOwners).ThenInclude(i => i.Cat)
+            return _context.CatOwners.Include(i => i.CatsAndOwners).ThenInclude(i => i.Cat)
                 .AsNoTracking().AsEnumerable();
         }
 
-        public override CatOwner Get(long id)
+        public CatOwner Get(string id)
         {
-            return base.Get(id);
+            return _context.CatOwners.AsNoTracking().Single(i => i.Id == id);
         }
 
-        public override void Create(CatOwner model)
+        public void Create(CatOwner model)
         {
-            base.Create(model);
+            _context.CatOwners.Add(model);
+            _context.SaveChanges();
         }
 
-        public override void CreateRange(IEnumerable<CatOwner> items)
+        public void CreateRange(IEnumerable<CatOwner> items)
         {
-            base.CreateRange(items);
+            _context.CatOwners.AddRange(items);
+            _context.SaveChanges();
         }
 
-        public override void Update(CatOwner item)
+        public void Update(CatOwner item)
         {
-            base.Update(item);
+            _context.CatOwners.Update(item);
+            _context.SaveChanges();
         }
 
-        public override void Delete(CatOwner item)
+        public void Delete(CatOwner item)
         {
-            base.Delete(item);
+            _context.CatOwners.Remove(item);
+            _context.SaveChanges();
         }
     }
 }

@@ -19,8 +19,6 @@ namespace DAL.Entities
 
         public List<CatPhoto> CatPhotos { get; set; } = new List<CatPhoto>();
 
-        //public int? CatOwnerId { get; set; }//foreign key
-        //public List<CatOwner> CatOwners { get; set; }
         public List<CatsAndOwners> CatsAndOwners { get; set; } = new List<CatsAndOwners>();
     }
 }

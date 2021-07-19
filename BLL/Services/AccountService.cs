@@ -20,22 +20,22 @@ namespace BLL.Services
             _mapper = mapper;
         }
 
-        public AccountModelDTO Authenticate(LoginModelDTO loginModelDTO)
-        {
-            loginModelDTO.Password = Crypt.GetHashSHA512(loginModelDTO.Password);
-            return _mapper.Map<CatOwner, AccountModelDTO>(
-                _repoCatOwners.GetAll_Queryable().FirstOrDefault(i=>
-                (i.Login.ToLower() == loginModelDTO.Login) &&
-                (i.Password == loginModelDTO.Password)));
-        }
-        public void Registration(RegisterModelDTO registerModelDTO)
-        {
-            if (_repoCatOwners.GetAll_Queryable().Any(i => i.Login.ToLower() == registerModelDTO.Login.ToLower()))
-                throw new ValidationException("This login already exists ");
-            CatOwner catOwner = _mapper.Map<RegisterModelDTO, CatOwner>(registerModelDTO);
-            catOwner.Password = Crypt.GetHashSHA512(catOwner.Password);
-            catOwner.Role = AccountRole.CatOwner;
-            _repoCatOwners.Create(catOwner);
-        }
+        //public AccountModelDTO Authenticate(LoginModelDTO loginModelDTO)
+        //{
+        //    loginModelDTO.Password = Crypt.GetHashSHA512(loginModelDTO.Password);
+        //    return _mapper.Map<CatOwner, AccountModelDTO>(
+        //        _repoCatOwners.GetAll_Queryable().FirstOrDefault(i=>
+        //        (i.Email.ToLower() == loginModelDTO.Email) &&
+        //        (i.Password == loginModelDTO.Password)));
+        //}
+        //public void Registration(RegisterModelDTO registerModelDTO)
+        //{
+        //    if (_repoCatOwners.GetAll_Queryable().Any(i => i.Email.ToLower() == registerModelDTO.Email.ToLower()))
+        //        throw new ValidationException("This login already exists ");
+        //    CatOwner catOwner = _mapper.Map<RegisterModelDTO, CatOwner>(registerModelDTO);
+        //    catOwner.Password = Crypt.GetHashSHA512(catOwner.Password);
+        //    catOwner.Role = AccountRole.CatOwner;
+        //    _repoCatOwners.Create(catOwner);
+        //}
     }
 }

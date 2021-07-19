@@ -12,10 +12,10 @@ namespace DAL.Service
     public class CatService : BaseService<Cat>, ICatService
     {
         public CatService(CatContext catContext) : base(catContext) { }
-        
+
         public override IQueryable<Cat> GetAll_Queryable()
         {
-            return base.GetAll_Queryable().Include(i=>i.CatPhotos).AsNoTracking();
+            return base.GetAll_Queryable().Include(i => i.CatPhotos).AsNoTracking();
         }
 
         public override IEnumerable<Cat> GetAll_Enumerable()

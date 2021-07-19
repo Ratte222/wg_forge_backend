@@ -1,116 +1,67 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using BLL.Interfaces;
+using System.Threading.Tasks;
+using DAL.Entities;
 using BLL.DTO;
-using BLL.Infrastructure;
-using wg_forge_backend.Models;
-using Microsoft.Extensions.Options;
-using DAL.Helpers;
 
-//статьи с реализацией авторизвции JWT https://fuse8.ru/articles/using-asp-net-core-identity-and-jwt,
-//https://jasonwatmore.com/post/2019/10/11/aspnet-core-3-jwt-authentication-tutorial-with-example-api,
-//https://jasonwatmore.com/post/2020/05/25/aspnet-core-3-api-jwt-authentication-with-refresh-tokens,
-//https://metanit.com/sharp/aspnet5/23.7.php
-
-//hash with salt https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.rfc2898derivebytes.-ctor?redirectedfrom=MSDN&view=net-5.0#System_Security_Cryptography_Rfc2898DeriveBytes__ctor_System_String_System_Int32_System_Int32_
-//https://overcoder.net/q/10288/%D1%85%D1%8D%D1%88-%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C-%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8F-%D0%BF%D0%BE-%D1%83%D0%BC%D0%BE%D0%BB%D1%87%D0%B0%D0%BD%D0%B8%D1%8E-%D0%B4%D0%BB%D1%8F-aspnet-identity-%D0%BA%D0%B0%D0%BA-%D0%BE%D0%BD-%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%D0%B5%D1%82-%D0%B8-%D1%8F%D0%B2%D0%BB%D1%8F%D0%B5%D1%82%D1%81%D1%8F
 namespace wg_forge_backend.Controllers
 {
 
+    //https://docs.microsoft.com/ru-ru/aspnet/core/security/authentication/identity?view=aspnetcore-5.0&tabs=visual-studio
+    //https://metanit.com/sharp/aspnet5/16.2.php
     
+    [Route("[controller]/[action]")]
     [ApiController]
     public class AccountController:Controller
     {
-        private IAccountService _account;
-        private AppSettings _appSettings;
-        public AccountController(IAccountService account, IOptions<AppSettings> appSettings)
+        private readonly UserManager<CatOwner> _userManager;
+        private readonly SignInManager<CatOwner> _signInManager;
+
+        public AccountController(UserManager<CatOwner> userManager, SignInManager<CatOwner> signInManager)
         {
-            _account = account;
-            _appSettings = appSettings.Value;
+            _userManager = userManager;
+            _signInManager = signInManager;
         }
 
-        /// <summary>
-        /// Generates a token for registered users 
-        /// </summary>
-        /// <param name="loginModelDTO"></param>
-        /// <returns></returns>
-        [HttpPost("/authenticate")]
-        [ProducesResponseType(typeof(List<LoginResponseModel>), 200)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
-        //[ProducesResponseType(typeof(string), 400)]
-        [ProducesResponseType(typeof(string), 500)]
-        public IActionResult Authenticate(LoginModelDTO loginModelDTO)
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterModelDTO model)
         {
-            var identity = GetIdentity(loginModelDTO);
-            if (identity == null)
+            CatOwner catOwner = new CatOwner { Email = model.Email, UserName = model.UserName, Age = model.Age, CatPoints = 0};
+            // add new user
+            var result = await _userManager.CreateAsync(catOwner, model.Password);
+            if (result.Succeeded)
             {
-                return BadRequest(new { errorText = "Invalid username or password." });
+                // set cokies
+                await _signInManager.SignInAsync(catOwner, false);
+                return StatusCode(200, "Registration succsess");
             }
-
-            var now = DateTime.UtcNow;
-            // создаем JWT-токен
-            var jwt = new JwtSecurityToken(
-                    issuer: _appSettings.Issuer,
-                    audience: _appSettings.Audience,
-                    notBefore: now,
-                    claims: identity.Claims,
-                    expires: now.Add(TimeSpan.FromMinutes(_appSettings.Lifetime)),
-                    signingCredentials: new SigningCredentials(
-                        new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(_appSettings.Secret)), 
-                        SecurityAlgorithms.HmacSha256));
-            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-
-            var response = new LoginResponseModel()
+            else
             {
-                AccessToken = encodedJwt,
-                UserName = identity.Name
-            };
-
-            return Json(response);
+                return BadRequest(result.Errors);
+                //foreach (var error in result.Errors)
+                //{
+                //    ModelState.AddModelError(string.Empty, error.Description);
+                //}
+            }            
         }
 
-
-        /// <summary>
-        /// Registers new users 
-        /// </summary>
-        /// <param name="registerModelDTO"></param>
-        /// <returns></returns>
-        [HttpPost("/owner/registration")]
-        [ProducesResponseType(typeof(string), 200)]
-        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
-        //у меня для этого запроса с одним и тем же кодом ответа может прийтиразные тела ответа
-        // это нужно исправлять?
-        //[ProducesResponseType(typeof(ValidationException), 400)]        
-        [ProducesResponseType(typeof(string), 500)]
-        public IActionResult Registration(RegisterModelDTO registerModelDTO)
-        {
-            _account.Registration(registerModelDTO);
-            return StatusCode(200, "Register succes");
-        }
-
-        private ClaimsIdentity GetIdentity(LoginModelDTO loginModelDTO)
-        {
-            AccountModelDTO accountModelDTO = _account.Authenticate(loginModelDTO);
-            if (accountModelDTO != null)
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginModelDTO model)
+        {           
+            var result =
+                await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+            if (result.Succeeded)
             {
-                var claims = new List<Claim>
-                {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, accountModelDTO.Login),
-                    new Claim(ClaimsIdentity.DefaultRoleClaimType, accountModelDTO.Role)
-                };
-                ClaimsIdentity claimsIdentity =
-                new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
-                    ClaimsIdentity.DefaultRoleClaimType);
-                return claimsIdentity;
+                return StatusCode(200);
             }
-
-            // если пользователя не найдено
-            return null;
+            else
+            {
+                return this.BadRequest("Wrong password or email ");
+            }           
         }
     }
 }

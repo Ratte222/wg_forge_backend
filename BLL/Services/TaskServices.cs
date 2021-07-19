@@ -35,10 +35,10 @@ namespace BLL.Services
             _appSettings = appSettings.Value;
         }
 
-        public List<CatDTO> GetCats(string ownerLogin)//do not work
+        public List<CatDTO> GetCats(string ownerEmail)//do not work
         {
             CatOwner catOwner = _repoCatOwners.GetAll_Queryable()
-                .Single(i => i.Login.ToLower() == ownerLogin.ToLower());
+                .Single(i => i.Email.ToLower() == ownerEmail.ToLower());
             if (catOwner == null)
                 throw new SelectException("Сould not find the owner. Please log in again.");
             //List<Cat> cat = catOwner.CatsAndOwners.ToList();
@@ -88,7 +88,7 @@ namespace BLL.Services
         public List<CatOwnerDTO> GetCatOwners()
         {
             List<CatOwner> catOwners = _repoCatOwners.GetAll_Queryable()
-                .OrderBy(i => i.Name).ToList();
+                .OrderBy(i => i.UserName).ToList();
             return _mapper.Map<List<CatOwner>, List<CatOwnerDTO>>(catOwners);
         }
 
@@ -106,11 +106,11 @@ namespace BLL.Services
                 _repoCatStat.GetAll_Enumerable().Single());//тут делаю выборку для проверки привильности записанных данных
         }
 
-        public void AddCat(NewCatDTO newCatDTO, string ownerLogin)
+        public void AddCat(NewCatDTO newCatDTO, string ownerEmail)
         {
             newCatDTO.CheckColors(_appSettings);
             newCatDTO.CheckReasoneAddCat(_appSettings);
-            CatOwner catOwner = _repoCatOwners.GetAll_Queryable().Single(i => i.Login.ToLower() == ownerLogin.ToLower());
+            CatOwner catOwner = _repoCatOwners.GetAll_Queryable().Single(i => i.Email.ToLower() == ownerEmail.ToLower());
             if (catOwner == null)
                 throw new SelectException("Сould not find the owner. Please log in again.");
             if(catOwner.CatsAndOwners.Any(i=>i.Cat.Name.ToLower() == newCatDTO.Name.ToLower()))
@@ -125,13 +125,13 @@ namespace BLL.Services
             _repoCatOwners.Update(catOwner);
         }
 
-        public void EditCat(NewCatDTO catDTO, string ownerLogin)
+        public void EditCat(NewCatDTO catDTO, string ownerEmail)
         {
             catDTO.CheckColors(_appSettings);
             //if (!_repoCat.GetAll_Queryable().Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))
             //    throw new ValidationException("A cat with the same name already not exists");            
             long catId = _repoCatOwners.GetAll_Queryable()
-                .Single(i => i.Login.ToLower() == ownerLogin.ToLower())
+                .Single(i => i.Email.ToLower() == ownerEmail.ToLower())
                 .CatsAndOwners.First(i => i.Cat.Name.ToLower() == catDTO.Name.ToLower()).Cat.Id;
             if(catId < 1)    
                 throw new ValidationException("A cat with the same name already not exists");
@@ -140,18 +140,18 @@ namespace BLL.Services
             _repoCat.Update(cat);
         }
 
-        public void DeleteCat(CatDTO catDTO, string ownerLogin)
+        public void DeleteCat(CatDTO catDTO, string ownerEmail)
         {
             catDTO.CheckReasoneAddCat(_appSettings);
 
             if (!_repoCatOwners.GetAll_Queryable().AsNoTracking()
-                .Single(i => i.Login.ToLower() == ownerLogin.ToLower())
+                .Single(i => i.Email.ToLower() == ownerEmail.ToLower())
                 .CatsAndOwners.Any(i => i.Cat.Name.ToLower() == catDTO.Name.ToLower()))
                 //if(!catOwner.Cats.Any(i => i.Name.ToLower() == catDTO.Name.ToLower()))    
                 throw new ValidationException("You are not the owner of this cat");
             CatOwner catOwner = _repoCatOwners.GetAll().Include(i => i.CatsAndOwners)
                 .ThenInclude(i=>i.Cat)
-                .Single(i => i.Login.ToLower() == ownerLogin.ToLower());
+                .Single(i => i.Email.ToLower() == ownerEmail.ToLower());
             Cat cat = _mapper.Map<CatDTO, Cat>(catDTO);
             CatsAndOwners catsAndOwners = catOwner.CatsAndOwners.First(i => i.Cat.Name.ToLower() == catDTO.Name.ToLower());
             cat.Id = catsAndOwners.Cat.Id;
@@ -166,15 +166,15 @@ namespace BLL.Services
             return "Cats Service. Version 0.1";
         }
 
-        public CatOwnerDTO GetCatOwner(string ownerLogin)
+        public CatOwnerDTO GetCatOwner(string ownerEmail)
         {
             CatOwner catOwners = _repoCatOwners.GetAll_Queryable()
-                .Single(i=>i.Login.ToLower() == ownerLogin.ToLower());
+                .Single(i=>i.Email.ToLower() == ownerEmail.ToLower());
             //CatOwner catOwners_ = _repoCatOwners.GetAll().AsNoTracking().Include(i=>i.CatsAndOwners)
             //    .ThenInclude(i=>i.Cat).ThenInclude(i=>i.CatPhotos)
-            //    .Single(i => i.Login.ToLower() == ownerLogin.ToLower());
+            //    .Single(i => i.Email.ToLower() == ownerEmail.ToLower());
             return _mapper.Map<CatOwner, CatOwnerDTO>(_repoCatOwners.GetAll_Queryable()
-                .Single(i => i.Login.ToLower() == ownerLogin.ToLower()));
+                .Single(i => i.Email.ToLower() == ownerEmail.ToLower()));
         }
 
         public void AddCatPhoto(List<CatPhotoDTO> catPhotosDTO, string catName)
@@ -184,10 +184,10 @@ namespace BLL.Services
             _repoCat.Update(cat);
         }
 
-        public void CheckCatInOwner(string catName, string ownerLogin)
+        public void CheckCatInOwner(string catName, string ownerEmail)
         {
             if (!_repoCatOwners.GetAll_Queryable().AsNoTracking()
-                .Single(i => i.Login.ToLower() == ownerLogin.ToLower())
+                .Single(i => i.Email.ToLower() == ownerEmail.ToLower())
                 .CatsAndOwners.Any(i => i.Cat.Name.ToLower() == catName.ToLower()))
                 throw new ValidationException("You are not the owner of this cat");
         }
