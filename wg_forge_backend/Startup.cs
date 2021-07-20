@@ -186,6 +186,7 @@ namespace wg_forge_backend
             services.AddScoped<ICatOwnerService, CatOwnerService>();
             services.AddScoped<IRepository<CatColorInfo>, Repository<CatColorInfo>>();
             services.AddScoped<IRepository<CatStat>, Repository<CatStat>>();
+            services.AddScoped<IRepository<CatPhoto>, Repository<CatPhoto>>();
 
             services.AddScoped<ITaskService, TaskServices>();
             services.AddScoped<IAccountService, AccountService>();

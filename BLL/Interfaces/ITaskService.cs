@@ -19,5 +19,6 @@ namespace BLL.Interfaces
         CatOwnerDTO GetCatOwner(string ownerUserName);
         void CheckCatInOwner(string catName, string ownerUserName);
         void AddCatPhoto(List<CatPhotoDTO> catPhotosDTO, string catName);
+        void CheckPhotoExistInCat(string userName, string photoNmae);
     }
 }

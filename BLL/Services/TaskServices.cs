@@ -19,17 +19,19 @@ namespace BLL.Services
         private ICatService _repoCat;
         private IRepository<CatColorInfo> _repoCatColorInfo;
         private IRepository<CatStat> _repoCatStat;
+        private IRepository<CatPhoto> _repoCatPhoto;
         private ICatOwnerService _repoCatOwners;
         private readonly IMapper _mapper;
         private AppSettings _appSettings;
         public TaskServices(ICatService repoCat, IRepository<CatColorInfo> repoCatColorInfo,
             IRepository<CatStat> repoCatStat, ICatOwnerService repoCatOwners,  IMapper mapper,
-            IOptions<AppSettings> appSettings)
+            IRepository<CatPhoto> repoCatPhoto, IOptions<AppSettings> appSettings)
         {
             _mapper = mapper;
             this._repoCat = repoCat;
             this._repoCatColorInfo = repoCatColorInfo;
             this._repoCatStat = repoCatStat;
+            this._repoCatPhoto = repoCatPhoto;
             this._repoCatOwners = repoCatOwners;
             _appSettings = appSettings.Value;
         }
@@ -190,6 +192,13 @@ namespace BLL.Services
             if (!_repoCatOwners.GetAll_Queryable().AsNoTracking()
                 .First(i => i.UserName.ToLower() == ownerEmail.ToLower())
                 .CatsAndOwners.Any(i => i.Cat.Name.ToLower() == catName.ToLower()))
+                throw new ValidationException("You are not the owner of this cat");
+        }
+        public void CheckPhotoExistInCat(string userName, string photoName)
+        {
+            if (!_repoCatPhoto.GetAll_Queryable().Include(i => i.Cat).ThenInclude(i => i.CatsAndOwners)
+                .ThenInclude(i => i.CatOwner).First(i => i.CatPhotoName.ToLower() == photoName.ToLower())
+                .Cat.CatsAndOwners.Any(i=>i.CatOwner.UserName.ToLower() == userName.ToLower()))
                 throw new ValidationException("You are not the owner of this cat");
         }
     }

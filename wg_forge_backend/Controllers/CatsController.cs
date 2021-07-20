@@ -250,7 +250,7 @@ namespace wg_forge_backend.Controllers
         /// 
         /// </summary>
         /// <response code="500">Oops! Can't added cat photo right now</response>
-        //[Authorize(Roles = AccountRole.CatOwner)]
+        [Authorize(Roles = AccountRole.CatOwner)]
         [HttpPost("addCatPhoto")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(string), 500)]
@@ -258,7 +258,7 @@ namespace wg_forge_backend.Controllers
             string path/*, [FromBody] string catOwnerLogin*/)
         {
             string catOwnerUserName = "Artur7";
-            _taskService.CheckCatInOwner(catName, catOwnerUserName/*this.User.Identity.Name*/);
+            _taskService.CheckCatInOwner(catName, this.User.Identity.Name);
             List<CatPhotoDTO> catPhotoDTO = new List<CatPhotoDTO>();
             foreach (var file in files)
             {
@@ -270,16 +270,25 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <response code="500">Oops! Can't added cat photo right now</response>
+        [Authorize(Roles = AccountRole.CatOwner)]
         [HttpGet("getCatPhoto")]
+        [ProducesResponseType(typeof(string), 200)]
+        //[ProducesResponseType(typeof(ValidationException), 400)]
+        [ProducesResponseType(typeof(string), 500)]        
         public IActionResult GetCatPhoto(string path)
         {
-            
+            _taskService.CheckPhotoExistInCat(this.User.Identity.Name, path);
             string contentType = $"image/{Path.GetExtension(path)}";
-            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), path);
+            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), 
+                defaultPathForCatPhoto, path);
             if (!System.IO.File.Exists(fullPath))
                 return BadRequest("File not exist");
             //StreamReader streamReader = new StreamReader(path);
-            return File(new FileStream(path, FileMode.Open), contentType, Path.GetFileName(path));
+            return File(new FileStream(fullPath, FileMode.Open), contentType, Path.GetFileName(path));
         }
 
         private string defaultPathForCatPhoto = "CatPhoto";
@@ -308,7 +317,7 @@ namespace wg_forge_backend.Controllers
                 if (!Directory.Exists(partialPath))
                     Directory.CreateDirectory(partialPath);
                 // if you want to store path of folder in database
-                PathDB = path + newFileName;
+                PathDB = Path.Combine(path, newFileName);
 
                 using (FileStream fs = System.IO.File.Create(fileName))
                 {

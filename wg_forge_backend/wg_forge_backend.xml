@@ -126,5 +126,11 @@
             </summary>
             <response code="500">Oops! Can't added cat photo right now</response>
         </member>
+        <member name="M:wg_forge_backend.Controllers.CatsController.GetCatPhoto(System.String)">
+            <summary>
+            
+            </summary>
+            <response code="500">Oops! Can't added cat photo right now</response>
+        </member>
     </members>
 </doc>
