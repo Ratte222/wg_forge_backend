@@ -249,18 +249,19 @@ namespace wg_forge_backend.Controllers
         /// 
         /// </summary>
         /// <response code="500">Oops! Can't added cat photo right now</response>
-        [Authorize(Roles = AccountRole.CatOwner)]
+        //[Authorize(Roles = AccountRole.CatOwner)]
         [HttpPost("addCatPhoto")]
         [ProducesResponseType(typeof(string), 200)]
         [ProducesResponseType(typeof(string), 500)]
-        public IActionResult AddCatPhoto([FromForm]IFormFileCollection files, [FromQuery] string catName/*, [FromBody] string catOwnerLogin*/)
+        public IActionResult AddCatPhoto([FromForm]IFormFileCollection files, [FromQuery] string catName,
+            string path/*, [FromBody] string catOwnerLogin*/)
         {
-            //string catOwnerLogin = "Vikulya";
-            _taskService.CheckCatInOwner(catName, this.User.Identity.Name);
+            string catOwnerUserName = "Artur7";
+            _taskService.CheckCatInOwner(catName, catOwnerUserName/*this.User.Identity.Name*/);
             List<CatPhotoDTO> catPhotoDTO = new List<CatPhotoDTO>();
             foreach (var file in files)
             {
-                string newFileName = SaveFiles(file);
+                string newFileName = SaveFiles(file, path);
                 if (!String.IsNullOrEmpty(newFileName))
                     catPhotoDTO.Add(new CatPhotoDTO() { CatPhotoName = newFileName });
             }
@@ -268,7 +269,17 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200);
         }
 
-        private string SaveFiles(IFormFile file)
+        [HttpGet("getCatPhoto")]
+        public IActionResult GetCatPhoto(string path)
+        {
+            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), path);
+            if (!System.IO.File.Exists(fullPath))
+                return BadRequest("File not exist");
+            StreamReader streamReader = new StreamReader(path);
+            return File(new FileStream(path, FileMode.Open), $"application/{Path.GetExtension(path)}");
+        }
+
+        private string SaveFiles(IFormFile file, string path)
         {
             var fileName = string.Empty;
             string PathDB = string.Empty;
@@ -288,11 +299,11 @@ namespace wg_forge_backend.Controllers
                 newFileName = myUniqueFileName + FileExtension;
 
                 // Combines two strings into a path.
-                fileName = Path.Combine(_environment.WebRootPath, "CatImages") + $@"\{newFileName}";
-                if (!Directory.Exists(Path.Combine(_environment.WebRootPath, "CatImages")))
-                    Directory.CreateDirectory(Path.Combine(_environment.WebRootPath, "CatImages"));
+                fileName = Path.Combine(Directory.GetCurrentDirectory(), path) + $@"\{newFileName}";
+                if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), path)))
+                    Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), path));
                 // if you want to store path of folder in database
-                PathDB = "CatImages/" + newFileName;
+                PathDB = path + newFileName;
 
                 using (FileStream fs = System.IO.File.Create(fileName))
                 {
@@ -300,7 +311,7 @@ namespace wg_forge_backend.Controllers
                     fs.Flush();
                 }
             }
-            return newFileName;
+            return PathDB;
         }
     }
 }

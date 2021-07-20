@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
-namespace DAL.Interface
+using System.Text;
+using DAL.Entities;
+namespace BLL.Interfaces
 {
-    public interface IRepository<T> where T : class
+    public interface IBaseService<T> where T : BaseEntity
     {
         IEnumerable<T> GetAll_Enumerable();
         IQueryable<T> GetAll_Queryable();

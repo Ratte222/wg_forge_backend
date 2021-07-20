@@ -40,7 +40,16 @@ namespace wg_forge_backend.Controllers
             _emailService = emailService.Value;
         }
 
+        /// <summary>
+        /// Registers new users 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+        //[ProducesResponseType(typeof(IEnumerable<IdentityError>), 400)]
+        [ProducesResponseType(typeof(string), 500)]        
         public async Task<IActionResult> Register(RegisterModelDTO model)
         {
             CatOwner catOwner = new CatOwner { Email = model.Email, UserName = model.UserName, Age = model.Age, CatPoints = 0};
@@ -63,15 +72,19 @@ namespace wg_forge_backend.Controllers
             }
             else
             {
-                return BadRequest(result.Errors);
-                //foreach (var error in result.Errors)
-                //{
-                //    ModelState.AddModelError(string.Empty, error.Description);
-                //}
+                return BadRequest(result.Errors);                
             }            
         }
 
+        /// <summary>
+        /// Confirm email
+        /// </summary>
+        /// <param name="t">confirm mail token</param>
         [HttpGet]
+        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        //[ProducesResponseType(typeof(IEnumerable<IdentityError>), 400)]
+        [ProducesResponseType(typeof(string), 500)]
         public async Task<IActionResult> ConfirmEmail(string t)
         {
             ClaimsPrincipal claimsPrincipal; 
@@ -87,8 +100,16 @@ namespace wg_forge_backend.Controllers
             }                
             return BadRequest("Invalid token");
         }
-
+        /// <summary>
+        /// Generates a token for registered users 
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
+        [ProducesResponseType(typeof(List<LoginResponseModel>), 200)]
+        //[ProducesResponseType(typeof(ValidationProblemDetails), 400)]
+        [ProducesResponseType(typeof(string), 400)]
+        [ProducesResponseType(typeof(string), 500)]        
         public async Task<IActionResult> Login(LoginModelDTO model)
         {           
             //var result =

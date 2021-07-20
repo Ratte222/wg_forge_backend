@@ -4,6 +4,26 @@
         <name>wg_forge_backend</name>
     </assembly>
     <members>
+        <member name="M:wg_forge_backend.Controllers.AccountController.Register(BLL.DTO.RegisterModelDTO)">
+            <summary>
+            Registers new users 
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
+        <member name="M:wg_forge_backend.Controllers.AccountController.ConfirmEmail(System.String)">
+            <summary>
+            Confirm email
+            </summary>
+            <param name="t">confirm mail token</param>
+        </member>
+        <member name="M:wg_forge_backend.Controllers.AccountController.Login(BLL.DTO.LoginModelDTO)">
+            <summary>
+            Generates a token for registered users 
+            </summary>
+            <param name="model"></param>
+            <returns></returns>
+        </member>
         <member name="M:wg_forge_backend.Controllers.CatsController.AllCats(System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
             <summary>
             Get a list of all cats
@@ -100,7 +120,7 @@
             <returns>json</returns>
             <response code="500">Oops! Can't return list cats right now</response>
         </member>
-        <member name="M:wg_forge_backend.Controllers.CatsController.AddCatPhoto(Microsoft.AspNetCore.Http.IFormFileCollection,System.String)">
+        <member name="M:wg_forge_backend.Controllers.CatsController.AddCatPhoto(Microsoft.AspNetCore.Http.IFormFileCollection,System.String,System.String)">
             <summary>
             
             </summary>

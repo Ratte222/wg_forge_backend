@@ -5,7 +5,6 @@ using BLL.Interfaces;
 using BLL.Infrastructure;
 using BLL.DTO;
 using BLL.BusinessModels;
-using DAL.Interface;
 using DAL.Entities;
 using AutoMapper;
 using DAL.Helpers;

@@ -33,8 +33,8 @@ namespace wg_forge_backend
             CreateMap<RegisterModelDTO, CatOwner>();
             CreateMap<CatOwner, AccountModelDTO>();
             CreateMap<CatPhotoDTO, CatPhoto>();
-            CreateMap<CatPhoto, CatPhotoDTO>()
-                .ForMember(dest=>dest.CatPhotoName, opt=>opt.MapFrom(scr=> "CatImages/"+ scr.CatPhotoName));
+            CreateMap<CatPhoto, CatPhotoDTO>();
+                //.ForMember(dest=>dest.CatPhotoName, opt=>opt.MapFrom(scr=> "CatImages/"+ scr.CatPhotoName));
         }
     }
 }

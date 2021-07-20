@@ -1,5 +1,5 @@
 ﻿using DAL.Entities;
-using DAL.Interface;
+using BLL.Interfaces;
 using DAL.EF;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
-namespace DAL.Service
+namespace BLL.Services
 {
     public class CatOwnerService : ICatOwnerService
     {

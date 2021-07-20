@@ -23,6 +23,6 @@ namespace DAL.Entities
         public const string CatOwner = "CatOwner";
         public const string User = "User";
 
-        public static readonly string[] Roles = { Admin, CatOwner, User };
+        //public static readonly string[] Roles = { Admin, CatOwner, User };
     }
 }

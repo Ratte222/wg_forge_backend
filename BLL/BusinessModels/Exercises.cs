@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DAL.Interface;
+using BLL.Interfaces;
 using DAL.Entities;
 
 namespace BLL.BusinessModels

@@ -7,8 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DAL.EF;
 using DAL.Entities;
-using DAL.Interface;
-using DAL.Service;  
 using BLL.Services;
 using BLL.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +22,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Net;
-using BLL.DTO;
+
 
 namespace wg_forge_backend
 {
@@ -69,6 +67,45 @@ namespace wg_forge_backend
                     HealthCheckResult.Healthy("Baz is OK!"), tags: new[] { "baz_tag" }); ;
             //--------- HealthCheck settingd ---------------------
 
+            //---------Identity settingd ---------------------
+            services.AddIdentity<CatOwner, IdentityRole>()
+                .AddEntityFrameworkStores<CatContext>();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 0;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+
+                options.SignIn.RequireConfirmedEmail = true;
+            });
+
+            //services.ConfigureApplicationCookie(options =>
+            //{
+            //    // Cookie settings
+            //    options.Cookie.HttpOnly = true;
+            //    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+            //    options.LoginPath = "Account/Login";
+            //    options.AccessDeniedPath = "/Account/AccessDenied";
+            //    options.SlidingExpiration = true;
+            //});
+            //---------Identity settingd ---------------------
+
             //--------- config settingd ---------------------
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -112,44 +149,7 @@ namespace wg_forge_backend
             });
             //--------- JWT settingd ---------------------
 
-            //---------Identity settingd ---------------------
-            services.AddIdentity<CatOwner, IdentityRole>()
-                .AddEntityFrameworkStores<CatContext>();
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Password settings.
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequiredUniqueChars = 0;
-
-                // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-
-                // User settings.
-                options.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = false;
-
-                options.SignIn.RequireConfirmedEmail = true;
-            });
-
-            //services.ConfigureApplicationCookie(options =>
-            //{
-            //    // Cookie settings
-            //    options.Cookie.HttpOnly = true;
-            //    options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
-            //    options.LoginPath = "Account/Login";
-            //    options.AccessDeniedPath = "/Account/AccessDenied";
-            //    options.SlidingExpiration = true;
-            //});
-            //---------Identity settingd ---------------------
+            
 
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
 
@@ -202,7 +202,7 @@ namespace wg_forge_backend
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            //app.UseStaticFiles();
             app.UseSerilogRequestLogging();//в зависимотсти от того, где находиться это объявление будут логгироваться разные
             //части обработки запроса. Например если написать логгер выше UseStaticFiles он будет логгировать скачивание
             //статических файлов
@@ -231,16 +231,16 @@ namespace wg_forge_backend
 
         private void InitializeIdentityRole(RoleManager<IdentityRole> roleManager)
         {
-            //foreach(string role in AccountRole.Roles)
-            //{
-            //if (roleManager.FindByNameAsync(role) == null)
-            //{
-            //roleManager.CreateAsync(new IdentityRole(role));
-            //}
-            //}
-            //roleManager.CreateAsync(new IdentityRole(AccountRole.Admin));
-            //roleManager.CreateAsync(new IdentityRole(AccountRole.CatOwner));
-            //roleManager.CreateAsync(new IdentityRole(AccountRole.User));
+            //List<string> res = typeof(AccountRole).GetAllPublicConstantValues<string>();
+
+            foreach (string role in typeof(AccountRole).GetAllPublicConstantValues<string>())
+            {
+                if (roleManager.FindByNameAsync(role).GetAwaiter().GetResult() == null)
+                {
+                    roleManager.CreateAsync(new IdentityRole(role));
+                }
+            }
         }
-    }
+        
+    }    
 }

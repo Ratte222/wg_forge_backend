@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
-using DAL.Interface;
+using BLL.Interfaces;
 using DAL.Entities;
 using DAL.EF;
-namespace DAL.Service
+namespace BLL.Services
 {
     public class BaseService<T> : IBaseService<T> where T : BaseEntity
     {

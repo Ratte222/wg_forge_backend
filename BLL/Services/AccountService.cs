@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using BLL.Interfaces;
-using BLL.DTO;
-using DAL.Entities;
-using DAL.Interface;
 using AutoMapper;
 using BLL.Infrastructure;
 namespace BLL.Services

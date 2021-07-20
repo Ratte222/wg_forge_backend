@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using DAL.Interface;
+using BLL.Interfaces;
 using DAL.EF;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
-namespace DAL.Service
+namespace BLL.Services
 {
     public class Repository<T> : IRepository<T> where T : class
     {
