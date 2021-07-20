@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using DAL.Helpers;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using wg_forge_backend.Models;
 
 namespace wg_forge_backend.Controllers
 {
@@ -52,13 +53,12 @@ namespace wg_forge_backend.Controllers
                 var allRoles = _roleManager.Roles.ToList();
                 await _userManager.AddToRoleAsync(catOwner, 
                     _roleManager.KeyNormalizer.NormalizeName(AccountRole.CatOwner));
-                //string body = $"<h2>Confirm mail</h2>" +
-                //$"<p><a href=\"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT(GetIdentity(catOwner.UserName))}\">" +
-                //$"<p><a href=\"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT()}\">" +
-                //$"Click here</a></p> ";
-                //_emailService.SendEmail(catOwner.Email, "CatService", body);
+                string jwt = CreateJWT(GetIdentity(new List<Claim>() {
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, catOwner.Id)
+                    //new Claim(ClaimsIdentity.DefaultIssuer, catOwner.Email)
+                }, "ConfirmMail"));
                 _emailService.SendConfirmationEmail(catOwner.Email, "Confirm your registration",
-                    $"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT(GetIdentity(catOwner.UserName))}");
+                    $"https://localhost:5001/Account/ConfirmEmail?t={jwt}");
                 return StatusCode(200, "Registration succsess");
             }
             else
@@ -74,10 +74,10 @@ namespace wg_forge_backend.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string t)
         {
-            string userName; 
-            if (ValidationJWT(t, out userName))
+            ClaimsPrincipal claimsPrincipal; 
+            if (ValidationJWT(t, out claimsPrincipal))
             {
-                CatOwner catOwner = await _userManager.FindByNameAsync(userName);
+                CatOwner catOwner = await _userManager.FindByIdAsync(claimsPrincipal.Identity.Name);
                 catOwner.EmailConfirmed = true;
                 var result = _userManager.UpdateAsync(catOwner);
                 if (result.Result.Succeeded)
@@ -85,18 +85,29 @@ namespace wg_forge_backend.Controllers
                 else
                     return BadRequest(result.Result.Errors);
             }                
-            else
-                return BadRequest("Invalid token");
+            return BadRequest("Invalid token");
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginModelDTO model)
         {           
-            var result =
-                await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
-            if (result.Succeeded)
+            //var result =
+                //await _signInManager.PasswordSignInAsync(model.UserName, model.Password, model.RememberMe, false);
+            CatOwner catOwner = await _userManager.FindByNameAsync(model.UserName);
+            if (await _userManager.CheckPasswordAsync(
+                catOwner, model.Password))
             {
-                return StatusCode(200);
+                if (!catOwner.EmailConfirmed)
+                    return BadRequest("Please, confirm e-mail");
+                LoginResponseModel loginResponseModel = new LoginResponseModel()
+                {
+                    AccessToken = CreateJWT(GetIdentity(new List<Claim>() {
+                        new Claim(ClaimsIdentity.DefaultNameClaimType, model.UserName),
+                        new Claim(ClaimsIdentity.DefaultRoleClaimType, AccountRole.CatOwner)
+                    })),
+                    UserName = model.UserName
+                };
+                return Json(loginResponseModel);
             }
             else
             {
@@ -104,22 +115,22 @@ namespace wg_forge_backend.Controllers
             }           
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Logout()
-        {
-            // удаляем аутентификационные куки
-            await _signInManager.SignOutAsync();
-            return StatusCode(200, "Logout done");
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> Logout()
+        //{
+        //    // удаляем аутентификационные куки
+        //    await _signInManager.SignOutAsync();
+        //    return StatusCode(200, "Logout done");
+        //}
 
-        private bool ValidationJWT(string token, out string userName)
+        private bool ValidationJWT(string token, out ClaimsPrincipal claimsPrincipal)
         {
+            claimsPrincipal = null;
             var mySecurityKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(_appSettings.Secret));
-            var tokenHandler = new JwtSecurityTokenHandler();
-            userName = String.Empty;
+            var tokenHandler = new JwtSecurityTokenHandler();            
             try
             {
-                ClaimsPrincipal claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = true,
@@ -127,8 +138,7 @@ namespace wg_forge_backend.Controllers
                     ValidIssuer = _appSettings.Issuer,
                     ValidAudience = _appSettings.Audience,
                     IssuerSigningKey = mySecurityKey
-                }, out SecurityToken validatedToken);
-                userName = claimsPrincipal.Identity.Name;
+                }, out SecurityToken validatedToken);                
             }
             catch
             {
@@ -160,6 +170,13 @@ namespace wg_forge_backend.Controllers
                 };
             ClaimsIdentity claimsIdentity =
             new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+                ClaimsIdentity.DefaultRoleClaimType);
+            return claimsIdentity;
+        }
+        private ClaimsIdentity GetIdentity(List<Claim> claims, string authenticationType = "Token")
+        {
+            ClaimsIdentity claimsIdentity =
+            new ClaimsIdentity(claims, authenticationType, ClaimsIdentity.DefaultNameClaimType,
                 ClaimsIdentity.DefaultRoleClaimType);
             return claimsIdentity;
         }

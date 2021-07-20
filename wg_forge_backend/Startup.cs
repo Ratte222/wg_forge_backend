@@ -69,37 +69,47 @@ namespace wg_forge_backend
                     HealthCheckResult.Healthy("Baz is OK!"), tags: new[] { "baz_tag" }); ;
             //--------- HealthCheck settingd ---------------------
 
+            //--------- config settingd ---------------------
+            // configure strongly typed settings objects
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            var mailAddresConfigSection = Configuration.GetSection("MailAddresConfig");
+            services.Configure<EmailService>(mailAddresConfigSection);
+            var mailSettings = mailAddresConfigSection.Get<EmailService>();
+
+            //--------- config settingd ---------------------
 
             //--------- JWT settingd ---------------------
 
 
-            //var appSettings = appSettingsSection.Get<AppSettings>();
-            //var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
-            //services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            //.AddJwtBearer(options =>
-            //{
-            //    options.RequireHttpsMetadata = true;//if false - do not use SSl
-            //    options.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        // укзывает, будет ли валидироваться издатель при валидации токена
-            //        ValidateIssuer = true,
-            //        // строка, представляющая издателя
-            //        ValidIssuer = appSettings.Issuer,
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;//if false - do not use SSl
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // укзывает, будет ли валидироваться издатель при валидации токена
+                    ValidateIssuer = true,
+                    // строка, представляющая издателя
+                    ValidIssuer = appSettings.Issuer,
 
-            //        // будет ли валидироваться потребитель токена
-            //        ValidateAudience = true,
-            //        // установка потребителя токена
-            //        ValidAudience = appSettings.Audience,
-            //        // будет ли валидироваться время существования
-            //        ValidateLifetime = true,
+                    // будет ли валидироваться потребитель токена
+                    ValidateAudience = true,
+                    // установка потребителя токена
+                    ValidAudience = appSettings.Audience,
+                    // будет ли валидироваться время существования
+                    ValidateLifetime = true,
 
-            //        // установка ключа безопасности
-            //        //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-            //        IssuerSigningKey = new SymmetricSecurityKey(key),
-            //        // валидация ключа безопасности
-            //        ValidateIssuerSigningKey = true,
-            //    };
-            //});
+                    // установка ключа безопасности
+                    //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    // валидация ключа безопасности
+                    ValidateIssuerSigningKey = true,
+                };
+            });
             //--------- JWT settingd ---------------------
 
             //---------Identity settingd ---------------------
@@ -161,14 +171,6 @@ namespace wg_forge_backend
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
-
-            // configure strongly typed settings objects
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            var mailAddresConfigSection = Configuration.GetSection("MailAddresConfig");
-            services.Configure<EmailService>(mailAddresConfigSection);
-            var mailSettings = mailAddresConfigSection.Get<EmailService>();
 
             services.AddControllersWithViews();
 
