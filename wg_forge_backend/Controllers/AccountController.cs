@@ -57,18 +57,23 @@ namespace wg_forge_backend.Controllers
             var result = await _userManager.CreateAsync(catOwner, model.Password);
             if (result.Succeeded)
             {
-                // set cokies
-                //await _signInManager.SignInAsync(catOwner, false);
-                var allRoles = _roleManager.Roles.ToList();
-                await _userManager.AddToRoleAsync(catOwner, 
-                    _roleManager.KeyNormalizer.NormalizeName(AccountRole.CatOwner));
-                string jwt = CreateJWT(GetIdentity(new List<Claim>() {
+                try
+                {
+                    // set cokies
+                    //await _signInManager.SignInAsync(catOwner, false);
+                    var allRoles = _roleManager.Roles.ToList();
+                    await _userManager.AddToRoleAsync(catOwner, AccountRole.User);
+                    string jwt = CreateJWT(GetIdentity(new List<Claim>() {
                     new Claim(ClaimsIdentity.DefaultNameClaimType, catOwner.Id)
                     //new Claim(ClaimsIdentity.DefaultIssuer, catOwner.Email)
                 }, "ConfirmMail"));
-                _emailService.SendConfirmationEmail(catOwner.Email, "Confirm your registration",
-                    $"https://localhost:5001/Account/ConfirmEmail?t={jwt}");
-                return StatusCode(200, "Registration succsess");
+                    _emailService.SendConfirmationEmail(catOwner.Email, "Confirm your registration",
+                        $"https://localhost:5001/Account/ConfirmEmail?t={jwt}");
+                    return StatusCode(200, "Registration succsess");
+                }catch(Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
             }
             else
             {

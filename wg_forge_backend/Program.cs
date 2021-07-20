@@ -12,6 +12,8 @@ using Serilog.Events;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using DAL.EF;
+using Microsoft.AspNetCore;
+
 namespace wg_forge_backend
 {
     public class Program
@@ -49,13 +51,9 @@ namespace wg_forge_backend
             }
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IWebHostBuilder CreateHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
                 .UseSerilog()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>()/*.UseKestrel(i => i.Limits.MaxConcurrentConnections = 600)*/;
-
-                });
+                .UseStartup<Startup>();
     }
 }

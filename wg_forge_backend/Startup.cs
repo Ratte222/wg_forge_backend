@@ -22,6 +22,9 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Net;
+using BLL.DTO;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Threading.Tasks;
 
 
 namespace wg_forge_backend
@@ -43,7 +46,7 @@ namespace wg_forge_backend
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
-
+            services.AddMvcCore().AddApiExplorer().AddAuthorization();
             //--------- HealthCheck settingd ---------------------
             //https://docs.microsoft.com/ru-ru/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0
             services.AddHealthChecks().AddDbContextCheck<CatContext>()//added different for examples
@@ -67,9 +70,22 @@ namespace wg_forge_backend
                     HealthCheckResult.Healthy("Baz is OK!"), tags: new[] { "baz_tag" }); ;
             //--------- HealthCheck settingd ---------------------
 
-            //---------Identity settingd ---------------------
+            //--------- config settingd ---------------------
+            // configure strongly typed settings objects
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            var mailAddresConfigSection = Configuration.GetSection("MailAddresConfig");
+            services.Configure<EmailService>(mailAddresConfigSection);
+            var mailSettings = mailAddresConfigSection.Get<EmailService>();
+
+            //--------- config settingd ---------------------
+
+            //--------- JWT settingd ---------------------
+
             services.AddIdentity<CatOwner, IdentityRole>()
-                .AddEntityFrameworkStores<CatContext>();
+               .AddEntityFrameworkStores<CatContext>()
+               .AddDefaultTokenProviders(); ;
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -93,6 +109,64 @@ namespace wg_forge_backend
 
                 options.SignIn.RequireConfirmedEmail = true;
             });
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+          .AddJwtBearer(options =>
+          {
+              options.RequireHttpsMetadata = true;//if false - do not use SSl
+              options.SaveToken = true;
+              options.Events = new JwtBearerEvents()
+              {
+                  OnAuthenticationFailed = (ctx) =>
+                  {
+                      if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+                      {
+                          ctx.Response.StatusCode = 401;
+                      }
+
+                      return Task.CompletedTask;
+                  },
+                  OnForbidden = (ctx) =>
+                  {
+                      if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+                      {
+                          ctx.Response.StatusCode = 403;
+                      }
+
+                      return Task.CompletedTask;
+                  }
+              };
+              options.TokenValidationParameters = new TokenValidationParameters
+              {
+                  // specifies whether the publisher will be validated when validating the token 
+                  ValidateIssuer = true,
+                  // a string representing the publisher
+                  ValidIssuer = appSettings.Issuer,
+
+                  // whether the consumer of the token will be validated 
+                  ValidateAudience = true,
+                  // token consumer setting 
+                  ValidAudience = appSettings.Audience,
+                  // whether the lifetime will be validated 
+                  ValidateLifetime = true,
+
+                  // security key installation 
+                  //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                  IssuerSigningKey = new SymmetricSecurityKey(key),
+                  // security key validation 
+                  ValidateIssuerSigningKey = true,
+              };
+          });
+            //--------- JWT settingd ---------------------
+
+            //---------Identity settingd ---------------------
+
 
             //services.ConfigureApplicationCookie(options =>
             //{
@@ -106,51 +180,6 @@ namespace wg_forge_backend
             //});
             //---------Identity settingd ---------------------
 
-            //--------- config settingd ---------------------
-            // configure strongly typed settings objects
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            var mailAddresConfigSection = Configuration.GetSection("MailAddresConfig");
-            services.Configure<EmailService>(mailAddresConfigSection);
-            var mailSettings = mailAddresConfigSection.Get<EmailService>();
-
-            //--------- config settingd ---------------------
-
-            //--------- JWT settingd ---------------------
-
-
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = true;//if false - do not use SSl
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    // укзывает, будет ли валидироватьс€ издатель при валидации токена
-                    ValidateIssuer = true,
-                    // строка, представл€юща€ издател€
-                    ValidIssuer = appSettings.Issuer,
-
-                    // будет ли валидироватьс€ потребитель токена
-                    ValidateAudience = true,
-                    // установка потребител€ токена
-                    ValidAudience = appSettings.Audience,
-                    // будет ли валидироватьс€ врем€ существовани€
-                    ValidateLifetime = true,
-
-                    // установка ключа безопасности
-                    //IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    // валидаци€ ключа безопасности
-                    ValidateIssuerSigningKey = true,
-                };
-            });
-            //--------- JWT settingd ---------------------
-
-            
-
             services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
 
             services.AddScoped<ICatService, CatService>();
@@ -160,7 +189,7 @@ namespace wg_forge_backend
 
             services.AddScoped<ITaskService, TaskServices>();
             services.AddScoped<IAccountService, AccountService>();
-
+            services.AddRouting();
 
             services.AddAutoMapper(typeof(CatProfile));
 
@@ -172,11 +201,8 @@ namespace wg_forge_backend
                 c.IncludeXmlComments(xmlPath);
             });
 
-            services.AddControllersWithViews();
 
-            
 
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -205,24 +231,15 @@ namespace wg_forge_backend
             //app.UseStaticFiles();
             app.UseSerilogRequestLogging();//в зависимотсти от того, где находитьс€ это объ€вление будут логгироватьс€ разные
             //части обработки запроса. Ќапример если написать логгер выше UseStaticFiles он будет логгировать скачивание
-            //статических файлов
+            //статических файлов 
+           
+            app.UseMiddleware<ExeptionMeddleware>();
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseMiddleware<ExeptionMeddleware>();
             app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
-                {
-                    ResultStatusCodes =
-                    {
-                        [HealthStatus.Healthy] = StatusCodes.Status200OK,
-                        [HealthStatus.Degraded] = StatusCodes.Status200OK,
-                        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
-                    },
-                    Predicate = (check) => check.Tags.Contains("ping_tag") ||
-                        check.Tags.Contains("baz_tag")
-                });
+            { 
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{*catchall}");
@@ -231,15 +248,14 @@ namespace wg_forge_backend
 
         private void InitializeIdentityRole(RoleManager<IdentityRole> roleManager)
         {
-            //List<string> res = typeof(AccountRole).GetAllPublicConstantValues<string>();
-
+            var roles = roleManager.Roles.ToListAsync().GetAwaiter().GetResult();
             foreach (string role in typeof(AccountRole).GetAllPublicConstantValues<string>())
             {
-                if (roleManager.FindByNameAsync(role).GetAwaiter().GetResult() == null)
+                if (roles.Find(f=>f.Name == role) == null)
                 {
                     roleManager.CreateAsync(new IdentityRole(role));
                 }
-            }
+            } 
         }
         
     }    

@@ -21,23 +21,7 @@ namespace wg_forge_backend.Controllers
             _logger = logger;
             _environment = IHostingEnvironment;
         }
-        [HttpGet]
-        public IActionResult Index()
-        {
-            _logger.LogInformation("Index");
-            return View();
-        }
-        [HttpGet]
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [HttpGet]
-        public IActionResult AddPhoto()
-        {
-            return View();
-        }
+     
 
         [HttpPost]
         public IActionResult AddPhoto(string name)
@@ -84,13 +68,13 @@ namespace wg_forge_backend.Controllers
 
 
             }
-            return View();
+            return Ok();
         }
 
         [HttpGet, ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return BadRequest(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
