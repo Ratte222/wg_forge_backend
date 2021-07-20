@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Hosting;
+using DAL.Entities;
 
 namespace wg_forge_backend.Controllers
 {

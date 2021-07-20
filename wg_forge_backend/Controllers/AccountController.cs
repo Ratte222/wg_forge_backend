@@ -48,15 +48,17 @@ namespace wg_forge_backend.Controllers
             if (result.Succeeded)
             {
                 // set cokies
-                await _signInManager.SignInAsync(catOwner, false);
+                //await _signInManager.SignInAsync(catOwner, false);
                 var allRoles = _roleManager.Roles.ToList();
                 await _userManager.AddToRoleAsync(catOwner, 
                     _roleManager.KeyNormalizer.NormalizeName(AccountRole.CatOwner));
-                string body = $"<h2>Confirm mail</h2>" +
-                    //$"<p><a href=\"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT(GetIdentity(catOwner.UserName))}\">" +
-                    $"<p><a href=\"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT()}\">" +
-                    $"Click here</a></p> ";
-                _emailService.SendEmail(catOwner.Email, "CatService", body);
+                //string body = $"<h2>Confirm mail</h2>" +
+                //$"<p><a href=\"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT(GetIdentity(catOwner.UserName))}\">" +
+                //$"<p><a href=\"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT()}\">" +
+                //$"Click here</a></p> ";
+                //_emailService.SendEmail(catOwner.Email, "CatService", body);
+                _emailService.SendConfirmationEmail(catOwner.Email, "Confirm your registration",
+                    $"https://localhost:5001/Account/ConfirmEmail?t={CreateJWT(GetIdentity(catOwner.UserName))}");
                 return StatusCode(200, "Registration succsess");
             }
             else
@@ -69,10 +71,20 @@ namespace wg_forge_backend.Controllers
             }            
         }
 
-        public IActionResult ConfirmEmail(string t)
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string t)
         {
-            if (ValidationJWT(t))
-                return StatusCode(200, "Email confitm");
+            string userName; 
+            if (ValidationJWT(t, out userName))
+            {
+                CatOwner catOwner = await _userManager.FindByNameAsync(userName);
+                catOwner.EmailConfirmed = true;
+                var result = _userManager.UpdateAsync(catOwner);
+                if (result.Result.Succeeded)
+                    return StatusCode(200, "Email confitm");
+                else
+                    return BadRequest(result.Result.Errors);
+            }                
             else
                 return BadRequest("Invalid token");
         }
@@ -100,13 +112,14 @@ namespace wg_forge_backend.Controllers
             return StatusCode(200, "Logout done");
         }
 
-        private bool ValidationJWT(string token)
+        private bool ValidationJWT(string token, out string userName)
         {
             var mySecurityKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(_appSettings.Secret));
             var tokenHandler = new JwtSecurityTokenHandler();
+            userName = String.Empty;
             try
             {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                ClaimsPrincipal claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = true,
@@ -115,22 +128,23 @@ namespace wg_forge_backend.Controllers
                     ValidAudience = _appSettings.Audience,
                     IssuerSigningKey = mySecurityKey
                 }, out SecurityToken validatedToken);
+                userName = claimsPrincipal.Identity.Name;
             }
             catch
             {
                 return false;
-            }
+            }            
             return true;
         }
 
-        private string CreateJWT(/*ClaimsIdentity claimsIdentity*/)
+        private string CreateJWT(ClaimsIdentity claimsIdentity)
         {
             var now = DateTime.UtcNow;
             var jwt = new JwtSecurityToken(
                 issuer: _appSettings.Issuer,
                 audience: _appSettings.Audience,
                 notBefore: now,
-                //claims: claimsIdentity.Claims,
+                claims: claimsIdentity.Claims,
                 expires: now.Add(TimeSpan.FromMinutes(_appSettings.Lifetime)),
                 signingCredentials: new SigningCredentials(new 
                 SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(_appSettings.Secret)), 
