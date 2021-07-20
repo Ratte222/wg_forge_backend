@@ -20,8 +20,9 @@ using DAL.Entities;
 
 namespace wg_forge_backend.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    public class CatsController : Controller
+    public class CatsController : ControllerBase
     {
         private ITaskService _taskService;
         AppSettings _appSettings;
@@ -56,7 +57,7 @@ namespace wg_forge_backend.Controllers
             List<CatDTO> catDTO = _taskService.GetAllCats(attribute, order, offset, limit
                  /*queryCatColorInfoDTO.Attribute, queryCatColorInfoDTO.Order,
                  //queryCatColorInfoDTO.Offset, queryCatColorInfoDTO.Limit*/);
-            return Json(catDTO);
+            return Ok(catDTO);
             
         }
 
@@ -75,7 +76,7 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult Cats()
         {
-            return Json(_taskService.GetCats(this.User.Identity.Name));
+            return Ok(_taskService.GetCats(this.User.Identity.Name));
         }
 
         /// <summary>
@@ -96,14 +97,14 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(List<CatColorInfoDTO>), 200)]
         public IActionResult Exercise1()
         {
-            return Json(_taskService.Exercise1());
+            return Ok(_taskService.Exercise1());
         }
 
         [HttpGet("ex_2/")]//проборосил сюда для наглядности
         [ProducesResponseType(typeof(List<CatStatDTO>), 200)]
         public IActionResult Exercise2()
         {
-            return Json(_taskService.Exercise2());
+            return Ok(_taskService.Exercise2());
         }
 
         /// <summary>
@@ -121,7 +122,7 @@ namespace wg_forge_backend.Controllers
             addOrEditCatResponseModel.HexColor = _appSettings.HexColor;
             addOrEditCatResponseModel.ReasoneAddCat = _appSettings.ReasoneDeleteCat.Where(i => i.Value > 0)
                 .ToDictionary(i => i.Key, j => j.Value);
-            return Json(addOrEditCatResponseModel);
+            return Ok(addOrEditCatResponseModel);
         }
 
         /// <summary>
@@ -155,7 +156,7 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatEdit()
         {            
-            return Json(_appSettings.HexColor);
+            return Ok(_appSettings.HexColor);
         }
 
         /// <summary>
@@ -189,7 +190,7 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatDelete()
         {
-            return Json(_appSettings.ReasoneDeleteCat.Where(i=>i.Value<=0).ToDictionary(i=>i.Key, j=>j.Value));
+            return Ok(_appSettings.ReasoneDeleteCat.Where(i=>i.Value<=0).ToDictionary(i=>i.Key, j=>j.Value));
         }
 
 
@@ -228,7 +229,7 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatOwners()
         {
-            return Json(_taskService.GetCatOwners());
+            return Ok(_taskService.GetCatOwners());
         }
 
         /// <summary>
@@ -242,7 +243,7 @@ namespace wg_forge_backend.Controllers
         [ProducesResponseType(typeof(string), 500)]
         public IActionResult CatOwner()
         {            
-            return Json(_taskService.GetCatOwner(this.User.Identity.Name));
+            return Ok(_taskService.GetCatOwner(this.User.Identity.Name));
         }
 
         /// <summary>

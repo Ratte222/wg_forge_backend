@@ -25,6 +25,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Net;
 using BLL.DTO;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Threading.Tasks;
 
 namespace wg_forge_backend
 {
@@ -45,7 +47,7 @@ namespace wg_forge_backend
         public void ConfigureServices(IServiceCollection services)
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
-
+            services.AddMvcCore().AddApiExplorer().AddAuthorization();
             //--------- HealthCheck settingd ---------------------
             //https://docs.microsoft.com/ru-ru/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0
             services.AddHealthChecks().AddDbContextCheck<CatContext>()//added different for examples
@@ -82,13 +84,65 @@ namespace wg_forge_backend
 
             //--------- JWT settingd ---------------------
 
+            services.AddIdentity<CatOwner, IdentityRole>()
+               .AddEntityFrameworkStores<CatContext>()
+               .AddDefaultTokenProviders(); ;
 
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequiredUniqueChars = 0;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+
+                options.SignIn.RequireConfirmedEmail = true;
+            });
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = System.Text.Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+          .AddJwtBearer(options =>
             {
                 options.RequireHttpsMetadata = true;//if false - do not use SSl
+                options.SaveToken = true;
+                options.Events = new JwtBearerEvents()
+                {
+                    OnAuthenticationFailed = (ctx) =>
+                    {
+                        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+                        {
+                            ctx.Response.StatusCode = 401;
+                        }
+
+                        return Task.CompletedTask;
+                    },
+                    OnForbidden = (ctx) =>
+                    {
+                        if (ctx.Request.Path.StartsWithSegments("/api") && ctx.Response.StatusCode == 200)
+                        {
+                            ctx.Response.StatusCode = 403;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     // укзывает, будет ли валидироваться издатель при валидации токена
@@ -113,31 +167,7 @@ namespace wg_forge_backend
             //--------- JWT settingd ---------------------
 
             //---------Identity settingd ---------------------
-            services.AddIdentity<CatOwner, IdentityRole>()
-                .AddEntityFrameworkStores<CatContext>();
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                // Password settings.
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequiredUniqueChars = 0;
-
-                // Lockout settings.
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.AllowedForNewUsers = true;
-
-                // User settings.
-                options.User.AllowedUserNameCharacters =
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-                options.User.RequireUniqueEmail = false;
-
-                options.SignIn.RequireConfirmedEmail = true;
-            });
+           
 
             //services.ConfigureApplicationCookie(options =>
             //{
@@ -160,7 +190,7 @@ namespace wg_forge_backend
 
             services.AddScoped<ITaskService, TaskServices>();
             services.AddScoped<IAccountService, AccountService>();
-
+            services.AddRouting();
 
             services.AddAutoMapper(typeof(CatProfile));
 
@@ -171,8 +201,6 @@ namespace wg_forge_backend
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
-
-            services.AddControllersWithViews();
 
             
 
@@ -205,24 +233,15 @@ namespace wg_forge_backend
             app.UseStaticFiles();
             app.UseSerilogRequestLogging();//в зависимотсти от того, где находиться это объявление будут логгироваться разные
             //части обработки запроса. Например если написать логгер выше UseStaticFiles он будет логгировать скачивание
-            //статических файлов
+            //статических файлов 
+           
+            app.UseMiddleware<ExeptionMeddleware>();
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseMiddleware<ExeptionMeddleware>();
             app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
-                {
-                    ResultStatusCodes =
-                    {
-                        [HealthStatus.Healthy] = StatusCodes.Status200OK,
-                        [HealthStatus.Degraded] = StatusCodes.Status200OK,
-                        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
-                    },
-                    Predicate = (check) => check.Tags.Contains("ping_tag") ||
-                        check.Tags.Contains("baz_tag")
-                });
+            { 
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{*catchall}");
@@ -231,16 +250,14 @@ namespace wg_forge_backend
 
         private void InitializeIdentityRole(RoleManager<IdentityRole> roleManager)
         {
-            //foreach(string role in AccountRole.Roles)
-            //{
-            //if (roleManager.FindByNameAsync(role) == null)
-            //{
-            //roleManager.CreateAsync(new IdentityRole(role));
-            //}
-            //}
-            //roleManager.CreateAsync(new IdentityRole(AccountRole.Admin));
-            //roleManager.CreateAsync(new IdentityRole(AccountRole.CatOwner));
-            //roleManager.CreateAsync(new IdentityRole(AccountRole.User));
+            var roles = roleManager.Roles.ToListAsync().GetAwaiter().GetResult();
+            foreach (string role in AccountRole.Roles)
+            {
+                if (roles.Find(f=>f.Name == role) == null)
+                {
+                    roleManager.CreateAsync(new IdentityRole(role));
+                }
+            } 
         }
     }
 }
