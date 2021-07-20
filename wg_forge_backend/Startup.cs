@@ -25,7 +25,8 @@ using System.Net;
 using BLL.DTO;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Threading.Tasks;
-
+using HealthChecks.UI.Client;
+using Microsoft.EntityFrameworkCore.InMemory.Storage;
 
 namespace wg_forge_backend
 {
@@ -47,13 +48,14 @@ namespace wg_forge_backend
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddMvcCore().AddApiExplorer().AddAuthorization();
+            #region Health
             //--------- HealthCheck settingd ---------------------
             //https://docs.microsoft.com/ru-ru/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0
             services.AddHealthChecks().AddDbContextCheck<CatContext>()//added different for examples
                 .AddCheck("Foo", () =>
                 {
                     HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(
-                        "https://localhost:5001/ping");
+                        "https://localhost:5001/api/Cats/ping");
                     HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
                     if (resp.StatusCode == HttpStatusCode.OK)
                     {
@@ -68,8 +70,22 @@ namespace wg_forge_backend
                      HealthCheckResult.Unhealthy("Bar is unhealthy!"), tags: new[] { "bar_tag" })
                 .AddCheck("Baz", () =>
                     HealthCheckResult.Healthy("Baz is OK!"), tags: new[] { "baz_tag" }); ;
-            //--------- HealthCheck settingd ---------------------
+            //adding healthchecks UI
+            services.AddHealthChecksUI(
+                opt =>
+            {
+                opt.SetEvaluationTimeInSeconds(15); //time in seconds between check
+                opt.MaximumHistoryEntriesPerEndpoint(60); //maximum history of checks
+                opt.SetApiMaxActiveRequests(1); //api requests concurrency
 
+                opt.AddHealthCheckEndpoint("default api", "/health"); //map health check api
+            })
+            .AddInMemoryStorage();
+
+            //--------- HealthCheck settingd ---------------------
+            #endregion
+
+            #region configSetting
             //--------- config settingd ---------------------
             // configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
@@ -80,7 +96,8 @@ namespace wg_forge_backend
             var mailSettings = mailAddresConfigSection.Get<EmailService>();
 
             //--------- config settingd ---------------------
-
+            #endregion
+            #region JWT_Setting
             //--------- JWT settingd ---------------------
 
             services.AddIdentity<CatOwner, IdentityRole>()
@@ -164,7 +181,7 @@ namespace wg_forge_backend
               };
           });
             //--------- JWT settingd ---------------------
-
+            #endregion
             //---------Identity settingd ---------------------
 
 
@@ -202,8 +219,6 @@ namespace wg_forge_backend
                 c.IncludeXmlComments(xmlPath);
             });
 
-
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -240,7 +255,22 @@ namespace wg_forge_backend
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
-            { 
+            {
+                //adding endpoint of health check for the health check ui in UI format
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+                {
+                    ResultStatusCodes =
+                    {
+                        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                        [HealthStatus.Degraded] = StatusCodes.Status200OK,
+                        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+                    },
+                    Predicate = (check) => check.Tags.Contains("ping_tag") ||
+                        check.Tags.Contains("baz_tag"),
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                //map healthcheck ui endpoing - default is /healthchecks-ui/
+                endpoints.MapHealthChecksUI();
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{*catchall}");
