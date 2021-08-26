@@ -46,7 +46,8 @@ namespace wg_forge_backend
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddMvcCore().AddApiExplorer().AddAuthorization();
-            services.AddDbContext<CatContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<CatContext>(options => options.
+                UseMySql(connection), ServiceLifetime.Transient);
             #region Health
             //--------- HealthCheck settingd ---------------------
             //https://docs.microsoft.com/ru-ru/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-5.0

@@ -30,7 +30,8 @@ namespace DAL.EF
         {
             if(!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=wg_forge_backend;Trusted_Connection=True;");               
+                optionsBuilder.UseMySql(@"server=localhost;user=artur;password=12345678;database=usersdb1;",
+                    new MySqlServerVersion(new Version(8, 0, 11)));               
                 
                 //var builder = new ConfigurationBuilder();
                 //// установка пути к текущему каталогу
